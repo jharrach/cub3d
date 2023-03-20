@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rburgsta <rburgsta@student.42.fr>          +#+  +:+       +#+         #
+#    By: rburgsta <rburgsta@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/20 16:57:43 by rburgsta         ###   ########.fr        #
+#    Updated: 2023/03/20 17:09:09 by rburgsta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,6 +33,7 @@ CMAKE_TRD   = -j$(shell sysctl -a | grep machdep.cpu.thread | awk '{print $$2}')
 LOADLIBES	+= $(addprefix -L, $(addsuffix /lib/, $(GLFW_DIR)))
 else
 CMAKE_TRD   = -j$(shell nproc --all)
+LOADLIBES   += -ldl -pthread
 endif
 
 all: $(NAME)
