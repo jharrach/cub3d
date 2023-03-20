@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
+#    By: rburgsta <rburgsta@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/20 15:42:03 by jharrach         ###   ########.fr        #
+#    Updated: 2023/03/20 16:57:43 by rburgsta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,15 +29,18 @@ LOADLIBES	= -lglfw -lm
 
 ifneq ($(shell uname), Linux)
 GLFW_DIR	= $(shell brew --prefix glfw)
+CMAKE_TRD   = -j$(shell sysctl -a | grep machdep.cpu.thread | awk '{print $$2}')
 LOADLIBES	+= $(addprefix -L, $(addsuffix /lib/, $(GLFW_DIR)))
+else
+CMAKE_TRD   = -j$(shell nproc --all)
 endif
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
 	@cmake -S $(MLX42_DIR) -B $(MLX42_B_DIR) 2>&1 | sed -e 's/^/mlx42: /;'
-	@make -C $(MLX42_B_DIR) 2>&1 | sed -e 's/^/mlx42: /;'
-	@make -C $(LIBFT_DIR) 2>&1 | sed -e 's/^/libft: /;'
+	@make -C $(MLX42_B_DIR) $(CMAKE_TRD) 2>&1 | sed -e 's/^/mlx42: /;'
+	@make -C $(LIBFT_DIR)  2>&1 | sed -e 's/^/libft: /;'
 	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c | objdir
