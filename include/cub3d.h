@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/21 19:48:06 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/24 20:20:21 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # define WIDTH 1600
 # define HEIGHT 900
 # define SCALE 100
-# define FOV 66.0f
+# define FOV 60.0f
 
 typedef struct p
 {
@@ -38,6 +38,9 @@ typedef struct data
 	int (*map)[7][8];
 	t_p player_location;
 	t_p forward;
+	double time;
+	mlx_texture_t *test;
+	mlx_image_t *prev_text;
 } t_data;
 
 #endif

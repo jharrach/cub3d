@@ -2,12 +2,7 @@
 
 int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 {
-    return (r << 24 | g << 16 | b << 8 | a);
-}
-
-void ft_mlx_put_pixel(mlx_image_t* image, t_p v, uint32_t color)
-{
-	mlx_put_pixel(image, WIDTH / 2 + v.x * SCALE, HEIGHT / 2 + v.y * SCALE, color);
+    return (a << 24 | b << 16 | g << 8 | r);
 }
 
 void print_vector(t_p v)
@@ -15,17 +10,36 @@ void print_vector(t_p v)
 	printf("X:%f, Y:%f\n", v.x, v.y);
 }
 
-void draw_rectangle(mlx_image_t *img, t_p *v, int width, int height, int color)
+void draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col)
 {
-	t_p v_temp;
+	int x_temp;
 
-	v_temp.x = v->x;
-	v_temp.y = v->y;
-	while (++v_temp.x < v->x + width)
+	h += y--;
+	x_temp = x;
+	while (++y < h)
 	{
-		v_temp.y  = v->y;
-		while (++v_temp.y < v->y + height)
-			mlx_put_pixel(img, v_temp.x, v_temp.y , color);
+		while (x < x_temp + w)
+			((int *)img->pixels)[y * img->width + x++] = col;
+		x = x_temp;
+	}
+}
+
+void draw_line_from_image(mlx_image_t *dest, mlx_texture_t *src, int x_dest, int y_dest, int h, float temp_wall_hit_var)
+{
+	int y_temp;
+	int x_src;
+	int y_src;
+
+	y_temp = y_dest--;
+	if (y_dest < -1)
+		y_dest = -1;
+	while (++y_dest < y_temp + h)
+	{
+		y_src = (float)src->height / h * (y_dest - y_temp);
+		x_src = src->width * temp_wall_hit_var;
+		((int *)dest->pixels)[y_dest * dest->width + x_dest] = ((int *)src->pixels)[y_src * src->width + x_src];
+		if (y_dest >= (int)dest->height - 1)
+			break ;
 	}
 }
 
@@ -61,53 +75,26 @@ void init_data(t_data *data)
 	data->image = mlx_new_image(data->mlx, WIDTH, HEIGHT);
 	data->player_direction = 0.0f;
 	data->player_location.x = 2.5;
-	data->player_location.y = 1.5;
+	data->player_location.y = 3;
 	data->forward.y = -0.1;
 	data->forward.x = 0;
+	data->time = 0;
+	data->prev_text = NULL;
+	data->test = mlx_load_png("./wb.png");
 }
 
-void draw_map(t_data *data)
+void find_collision_bad(t_data *data, t_p *point, float angle)
 {
-	int x;
-	int y;
-	x = -1;
-	while (++x <= 8)
-	{
-		y = -1;
-		while (++y < 7 * SCALE)
-			mlx_put_pixel(data->image, x * SCALE, y, ft_pixel(0, 0, 255, 255));
-	}
-	y = -1;
-	while (++y <= 7)
-	{
-		x = -1;
-		while (++x < 8 * SCALE)
-			mlx_put_pixel(data->image, x, y * SCALE, ft_pixel(0, 0, 255, 255));
-	}
-	x = -1;
-	while (++x < 8)
-	{
-		y = -1;
-		while (++y < 7)
-		{
-			t_p point;
-			point.x = x * SCALE;
-			point.y = y * SCALE;
-			draw_rectangle(data->image, &point, SCALE, SCALE, ft_pixel(!(*data->map)[y][x] * 255 , !(*data->map)[y][x] * 255, !(*data->map)[y][x] * 255, 255));
-		}
-	}
-}
+	t_p forward;
 
-void clear_screen(t_data *data)
-{
-	t_p var;
-
-	var.x = -1;
-	while (++var.x < WIDTH)
+	forward.x = 0;
+	forward.y = 0;
+	while (true)
 	{
-		var.y = -1;
-		while (++var.y < HEIGHT)
-			mlx_put_pixel(data->image, var.x, var.y, 0);
+		*point = add_vector(data->player_location, rotate_vector(forward, angle + data->player_direction));
+		if ((*data->map)[(int)point->y][(int)point->x])
+			break;
+		forward.y -= 0.01;
 	}
 }
 
@@ -118,26 +105,16 @@ void cast_rays(t_data *data)
 	t_p draw;
 	int draw_heigt;
 
-	draw.x = 8 * SCALE;
+	draw.x = -1;
 	angle = -FOV / 2;
-	while (angle < FOV / 2)
+	while (++draw.x < WIDTH)
 	{
-		while (true)
-		{
-			point = add_vector(data->player_location, rotate_vector(data->forward, angle + data->player_direction));
-			if ((*data->map)[(int)point.y][(int)point.x])
-				break;
-			data->forward.y -= 0.01;
-		}
-		draw_heigt = HEIGHT / sqrt(pow(point.x-data->player_location.x, 2) + pow(point.y-data->player_location.y, 2));
-		if (draw_heigt >= HEIGHT)
-			draw_heigt = HEIGHT;
-		draw.x++;
+		angle = -FOV / 2 + FOV * draw.x / WIDTH;
+		find_collision_bad(data, &point, angle);
+		draw_heigt = 1.5 * HEIGHT / (cos(angle * 3.141592653589793/180) * sqrt(pow(point.x-data->player_location.x, 2) + pow(point.y-data->player_location.y, 2)));
 		draw.y = (HEIGHT - draw_heigt) / 2;
-		draw_rectangle(data->image, &draw, 2, draw_heigt, ft_pixel(255, 0, 0, 255));
-		draw_rectangle(data->image, scale_vector(&point, SCALE), 5, 5, ft_pixel(255, 0, 0, 255));
-		angle += FOV / (WIDTH - 8 * SCALE) ;
-		data->forward.y = -0.01;
+		//draw_rectangle(data->image, draw.x, draw.y, 1, draw_heigt, ft_pixel(255, 0, 0, 255));
+		draw_line_from_image(data->image, data->test, draw.x, draw.y, draw_heigt, fabsf(point.x - (int)point.x));
 	}
 }
 
@@ -145,7 +122,7 @@ void ft_hook(void* param)
 {
 	t_data *data = param;
 	t_p temp_loc;
-
+	
 	if (mlx_is_key_down(data->mlx, MLX_KEY_ESCAPE))
 		mlx_close_window(data->mlx);
 	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
@@ -176,13 +153,15 @@ void ft_hook(void* param)
 		data->player_direction -= 5;
 	if (mlx_is_key_down(data->mlx, MLX_KEY_RIGHT))
 		data->player_direction += 5;
-	clear_screen(data);
-	draw_map(data);
-	mlx_put_pixel(data->image, data->player_location.x * SCALE, data->player_location.y * SCALE, ft_pixel(255, 0, 0, 255));
+	draw_rectangle(data->image, 0, 0, WIDTH, HEIGHT / 2, ft_pixel(0, 255, 0, 255));
+	draw_rectangle(data->image, 0, HEIGHT / 2, WIDTH, HEIGHT / 2, ft_pixel(0, 0, 255, 255));
 	cast_rays(data);
-	mlx_image_to_window(data->mlx, data->image, 0, 0);
+	char *str = ft_itoa(1 / (mlx_get_time() - data->time));
+	mlx_delete_image(data->mlx, data->prev_text);
+	data->prev_text = mlx_put_string(data->mlx, str, 3, 0);
+	free(str);
+	data->time = mlx_get_time();
 }
-
 int	main(void)
 {
 	int map[7][8] = { {1, 1, 1, 1, 1, 1, 1, 1}, 
@@ -195,6 +174,7 @@ int	main(void)
 	t_data data;
 	data.map = &map;
 	init_data(&data);
+	mlx_image_to_window(data.mlx, data.image, 0, 0);
 	mlx_loop_hook(data.mlx, ft_hook, &data);
 	mlx_loop(data.mlx);
 	mlx_terminate(data.mlx);
