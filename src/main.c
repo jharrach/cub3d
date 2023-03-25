@@ -85,9 +85,7 @@ void find_collision_bad(t_data *data, t_vec2f *point, float radiant)
 {
 	t_vec2f forward;
 
-	forward.x = cos(radiant) * 0.01;
-	forward.y = sin(radiant) * 0.01;
-
+	forward = get_vector(radiant, 0.01);
 	*point = data->player_location;
 	while (true)
 	{
