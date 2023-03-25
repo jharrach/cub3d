@@ -1,18 +1,17 @@
 #include "../include/cub3d.h"
 
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
+int32_t factor_pixel(int c, float f)
 {
-    return (a << 24 | b << 16 | g << 8 | r);
-}
-
-void print_vector(t_p v)
-{
-	printf("X:%f, Y:%f\n", v.x, v.y);
+	if (f > 1.0)
+		return (0xFF000000);
+    return (255 << 24 | (int)((c >> 16 & 0xFF) * f) << 16 \
+			| (int)((c >> 8 & 0xFF) * f) << 8 
+			| (int)((c & 0xFF) * f));
 }
 
 void draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col)
 {
-	int x_temp;
+	int	x_temp;
 
 	h += y--;
 	x_temp = x;
@@ -24,49 +23,44 @@ void draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col)
 	}
 }
 
-void draw_line_from_image(mlx_image_t *dest, mlx_texture_t *src, int x_dest, int y_dest, int h, float temp_wall_hit_var)
+void txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit)
 {
-	int y_temp;
-	int x_src;
-	int y_src;
+	int	y_temp;
+	int	index;
+	t_vec2f src_loc;
+	int	draw_height;
 
-	y_temp = y_dest--;
-	if (y_dest < -1)
-		y_dest = -1;
-	while (++y_dest < y_temp + h)
+	draw_height = dst->height - loc.y * 2;
+	y_temp = loc.y;
+	if (loc.y < 0)
+		loc.y = 0;
+	while (loc.y < y_temp + draw_height && loc.y < (int)dst->height)
 	{
-		y_src = (float)src->height / h * (y_dest - y_temp);
-		x_src = src->width * temp_wall_hit_var;
-		((int *)dest->pixels)[y_dest * dest->width + x_dest] = ((int *)src->pixels)[y_src * src->width + x_src];
-		if (y_dest >= (int)dest->height - 1)
-			break ;
+		src_loc.y = (float)src->height / draw_height * (loc.y - y_temp);
+		src_loc.x = src->width * x_hit;
+		index = (int)src_loc.y * src->width + src_loc.x;
+		((int *)dst->pixels)[loc.y++ * dst->width + loc.x] \
+			= factor_pixel(((int *)src->pixels)[index], 1);
 	}
 }
 
-t_p rotate_vector(t_p v, float angle)
+t_vec2f rotate_vector(t_vec2f v, float angle)
 {
-	t_p v_res;
+	t_vec2f v_res;
 
-	angle *= (3.141592653589793/180);
+	angle *= (PI/180);
 	v_res.x = cos(angle) * v.x - sin(angle) * v.y;
 	v_res.y = sin(angle) * v.x + cos(angle) * v.y;
 	return (v_res);
 }
 
-t_p add_vector(t_p v1, t_p v2)
+t_vec2f add_vector(t_vec2f v1, t_vec2f v2)
 {
-	t_p v_res;
+	t_vec2f v_res;
 
 	v_res.x = v1.x + v2.x;
 	v_res.y = v1.y + v2.y;
 	return (v_res);
-}
-
-t_p *scale_vector(t_p *v, float scale)
-{
-	v->x *= scale;
-	v->y *= scale;
-	return (v);
 }
 
 void init_data(t_data *data)
@@ -76,55 +70,67 @@ void init_data(t_data *data)
 	data->player_direction = 0.0f;
 	data->player_location.x = 2.5;
 	data->player_location.y = 3;
-	data->forward.y = -0.1;
+	data->forward.y = -0.02;
 	data->forward.x = 0;
 	data->time = 0;
 	data->prev_text = NULL;
-	data->test = mlx_load_png("./wb.png");
+	data->north = mlx_load_png("./highres.png");
+	data->south = mlx_load_png("./rdr22.png");
 }
 
-void find_collision_bad(t_data *data, t_p *point, float angle)
+void find_collision_bad(t_data *data, t_vec2f *point, float angle)
 {
-	t_p forward;
+	t_vec2f forward;
 
 	forward.x = 0;
-	forward.y = 0;
+	forward.y = -0.005;
+
+	forward = rotate_vector(forward, angle + data->player_direction);
+	*point = data->player_location;
 	while (true)
 	{
-		*point = add_vector(data->player_location, rotate_vector(forward, angle + data->player_direction));
+		*point = add_vector(*point, forward);
 		if ((*data->map)[(int)point->y][(int)point->x])
 			break;
-		forward.y -= 0.01;
 	}
 }
 
 void cast_rays(t_data *data)
 {
 	float angle;
-	t_p point;
-	t_p draw;
-	int draw_heigt;
+	t_vec2f point;
+	t_vec2i draw;
+	t_vec2i step;
+	int draw_height;
 
 	draw.x = -1;
 	angle = -FOV / 2;
 	while (++draw.x < WIDTH)
 	{
-		angle = -FOV / 2 + FOV * draw.x / WIDTH;
+		angle = -FOV / 2 + (FOV * draw.x) / WIDTH;
+		step.x = (data->player_direction + angle >= 0 && data->player_direction < 180) * 2 - 1;
+		step.y = !(data->player_direction + angle >= 90 && data->player_direction < 270) * 2 - 1;
 		find_collision_bad(data, &point, angle);
-		draw_heigt = 1.5 * HEIGHT / (cos(angle * 3.141592653589793/180) * sqrt(pow(point.x-data->player_location.x, 2) + pow(point.y-data->player_location.y, 2)));
-		draw.y = (HEIGHT - draw_heigt) / 2;
-		//draw_rectangle(data->image, draw.x, draw.y, 1, draw_heigt, ft_pixel(255, 0, 0, 255));
-		draw_line_from_image(data->image, data->test, draw.x, draw.y, draw_heigt, fabsf(point.x - (int)point.x));
+		draw_height = HEIGHT / (cos(angle * PI/180) * sqrt(pow(point.x-data->player_location.x, 2) + pow(point.y-data->player_location.y, 2)));
+		draw.y = (HEIGHT - draw_height) / 2;
+		if (point.y < data->player_location.y)
+			txt_to_img(data->image, data->north, draw, fabsf(point.x - (int)point.x));
+		else
+			txt_to_img(data->image, data->south, draw, fabsf(point.x - (int)point.x));
 	}
 }
 
 void ft_hook(void* param)
 {
 	t_data *data = param;
-	t_p temp_loc;
+	t_vec2f temp_loc;
 	
 	if (mlx_is_key_down(data->mlx, MLX_KEY_ESCAPE))
 		mlx_close_window(data->mlx);
+	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT_SHIFT))
+		data->forward.y = -0.08;
+	else
+		data->forward.y = -0.02;
 	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
 	{
 		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, data->player_direction));
@@ -150,11 +156,19 @@ void ft_hook(void* param)
 			data->player_location = temp_loc;
 	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT))
-		data->player_direction -= 5;
+	{
+		data->player_direction -= 2;
+		if (data->player_direction < 0)
+			data->player_direction += 360;
+	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_RIGHT))
-		data->player_direction += 5;
-	draw_rectangle(data->image, 0, 0, WIDTH, HEIGHT / 2, ft_pixel(0, 255, 0, 255));
-	draw_rectangle(data->image, 0, HEIGHT / 2, WIDTH, HEIGHT / 2, ft_pixel(0, 0, 255, 255));
+	{
+		data->player_direction += 2;
+		if (data->player_direction >= 360)
+			data->player_direction -= 360;
+	}
+	draw_rectangle(data->image, 0, 0, WIDTH, HEIGHT / 2, 0xFF00FF00);
+	draw_rectangle(data->image, 0, HEIGHT / 2, WIDTH, HEIGHT / 2, 0xFFFF0000);
 	cast_rays(data);
 	char *str = ft_itoa(1 / (mlx_get_time() - data->time));
 	mlx_delete_image(data->mlx, data->prev_text);
@@ -162,6 +176,7 @@ void ft_hook(void* param)
 	free(str);
 	data->time = mlx_get_time();
 }
+
 int	main(void)
 {
 	int map[7][8] = { {1, 1, 1, 1, 1, 1, 1, 1}, 

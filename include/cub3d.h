@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/24 20:20:21 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/25 17:10:02 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,22 @@
 # include "../mlx42/include/MLX42/MLX42.h"
 # include "math.h"
 
-# define WIDTH 1600
-# define HEIGHT 900
-# define SCALE 100
-# define FOV 60.0f
+# define WIDTH 1280
+# define HEIGHT 960
+# define FOV 66.0f
+# define PI 3.141592653589793
 
-typedef struct p
+typedef struct	s_vec2f
 {
-	float x;
-	float y;
-} t_p;
+	float	x;
+	float	y;
+}	t_vec2f;
 
+typedef struct	s_vec2i
+{
+	int	x;
+	int	y;
+}	t_vec2i;
 
 typedef struct data
 {
@@ -36,10 +41,11 @@ typedef struct data
 	mlx_image_t *image;
 	float player_direction;
 	int (*map)[7][8];
-	t_p player_location;
-	t_p forward;
+	t_vec2f player_location;
+	t_vec2f forward;
 	double time;
-	mlx_texture_t *test;
+	mlx_texture_t *north;
+	mlx_texture_t *south;
 	mlx_image_t *prev_text;
 } t_data;
 
