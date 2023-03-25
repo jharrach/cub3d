@@ -142,11 +142,11 @@ void ft_hook(void* param)
 	
 	if (mlx_is_key_down(data->mlx, MLX_KEY_ESCAPE))
 		mlx_close_window(data->mlx);
-	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT_SHIFT))
+	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT_SHIFT) || mlx_is_key_down(data->mlx, MLX_KEY_RIGHT_SHIFT))
 		data->speed = 0.08;
 	else
 		data->speed = 0.02;
-	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
+	if (mlx_is_key_down(data->mlx, MLX_KEY_W) || mlx_is_key_down(data->mlx, MLX_KEY_UP))
 	{
 		temp_loc = add_vector(data->player_location, get_vector(data->player_direction, data->speed));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
@@ -158,7 +158,7 @@ void ft_hook(void* param)
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
-	if (mlx_is_key_down(data->mlx, MLX_KEY_S))
+	if (mlx_is_key_down(data->mlx, MLX_KEY_S) || mlx_is_key_down(data->mlx, MLX_KEY_DOWN))
 	{
 		temp_loc = add_vector(data->player_location, get_vector(180 * PI / 180  + data->player_direction, data->speed));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
