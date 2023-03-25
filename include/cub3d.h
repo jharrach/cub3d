@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/25 21:17:51 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/25 21:54:07 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ typedef struct data
 	float player_direction;
 	int (*map)[7][8];
 	t_vec2f player_location;
-	t_vec2f forward;
+	float speed;
 	double time;
 	mlx_texture_t *north;
 	mlx_texture_t *south;

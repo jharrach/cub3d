@@ -53,6 +53,11 @@ t_vec2f rotate_vector(t_vec2f v, float radiant)
 	return (v_res);
 }
 
+t_vec2f get_vector(float radiant, float length)
+{
+	return ((t_vec2f){cos(radiant) * length, sin(radiant) * length});
+}
+
 t_vec2f add_vector(t_vec2f v1, t_vec2f v2)
 {
 	t_vec2f v_res;
@@ -69,8 +74,7 @@ void init_data(t_data *data)
 	data->player_direction = 0.0f;
 	data->player_location.x = 2.5;
 	data->player_location.y = 1.5;
-	data->forward.y = -0.02;
-	data->forward.x = 0;
+	data->speed = 0.02f;
 	data->time = 0;
 	data->prev_text = NULL;
 	data->north = mlx_load_png("./highres.png");
@@ -141,30 +145,30 @@ void ft_hook(void* param)
 	if (mlx_is_key_down(data->mlx, MLX_KEY_ESCAPE))
 		mlx_close_window(data->mlx);
 	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT_SHIFT))
-		data->forward.y = -0.08;
+		data->speed = 0.08;
 	else
-		data->forward.y = -0.02;
+		data->speed = 0.02;
+	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
+	{
+		temp_loc = add_vector(data->player_location, get_vector(data->player_direction, data->speed));
+		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
+			data->player_location = temp_loc;
+	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_A))
 	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, data->player_direction));
+		temp_loc = add_vector(data->player_location, get_vector(-90 * PI / 180 + data->player_direction, data->speed));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_S))
 	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, -90 * PI / 180 + data->player_direction));
+		temp_loc = add_vector(data->player_location, get_vector(180 * PI / 180  + data->player_direction, data->speed));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_D))
 	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, 180 * PI / 180  + data->player_direction));
-		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
-			data->player_location = temp_loc;
-	}
-	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
-	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, 90 * PI / 180  + data->player_direction));
+		temp_loc = add_vector(data->player_location, get_vector(90 * PI / 180  + data->player_direction, data->speed));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
