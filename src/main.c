@@ -44,13 +44,12 @@ void txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit)
 	}
 }
 
-t_vec2f rotate_vector(t_vec2f v, float angle)
+t_vec2f rotate_vector(t_vec2f v, float radiant)
 {
 	t_vec2f v_res;
 
-	angle *= (PI/180);
-	v_res.x = cos(angle) * v.x - sin(angle) * v.y;
-	v_res.y = sin(angle) * v.x + cos(angle) * v.y;
+	v_res.x = cos(radiant) * v.x - sin(radiant) * v.y;
+	v_res.y = sin(radiant) * v.x + cos(radiant) * v.y;
 	return (v_res);
 }
 
@@ -69,7 +68,7 @@ void init_data(t_data *data)
 	data->image = mlx_new_image(data->mlx, WIDTH, HEIGHT);
 	data->player_direction = 0.0f;
 	data->player_location.x = 2.5;
-	data->player_location.y = 3;
+	data->player_location.y = 1.5;
 	data->forward.y = -0.02;
 	data->forward.x = 0;
 	data->time = 0;
@@ -78,15 +77,33 @@ void init_data(t_data *data)
 	data->south = mlx_load_png("./rdr22.png");
 }
 
-void find_collision_bad(t_data *data, t_vec2f *point, float angle)
+void find_collision_bad(t_data *data, t_vec2f *point, float radiant)
 {
 	t_vec2f forward;
 
-	forward.x = 0;
-	forward.y = -0.005;
+	forward.x = cos(radiant) * 0.01;
+	forward.y = sin(radiant) * 0.01;
 
-	forward = rotate_vector(forward, angle + data->player_direction);
 	*point = data->player_location;
+	while (true)
+	{
+		*point = add_vector(*point, forward);
+		if ((*data->map)[(int)point->y][(int)point->x])
+			break;
+	}
+}
+
+void find_collision_good(t_data *data, t_vec2f *point, float radiant)
+{
+	//t_vec2i step;
+	t_vec2f forward;
+
+	forward.x = cos(radiant);
+	forward.y = sin(radiant);
+
+	*point = data->player_location;
+	// step.x = (data->player_direction + angle >= 0 && data->player_direction < 180) * 2 - 1;
+	// step.y = !(data->player_direction + angle >= 90 && data->player_direction < 270) * 2 - 1;
 	while (true)
 	{
 		*point = add_vector(*point, forward);
@@ -100,18 +117,14 @@ void cast_rays(t_data *data)
 	float angle;
 	t_vec2f point;
 	t_vec2i draw;
-	t_vec2i step;
 	int draw_height;
 
 	draw.x = -1;
-	angle = -FOV / 2;
 	while (++draw.x < WIDTH)
 	{
 		angle = -FOV / 2 + (FOV * draw.x) / WIDTH;
-		step.x = (data->player_direction + angle >= 0 && data->player_direction < 180) * 2 - 1;
-		step.y = !(data->player_direction + angle >= 90 && data->player_direction < 270) * 2 - 1;
-		find_collision_bad(data, &point, angle);
-		draw_height = HEIGHT / (cos(angle * PI/180) * sqrt(pow(point.x-data->player_location.x, 2) + pow(point.y-data->player_location.y, 2)));
+		find_collision_bad(data, &point, angle + data->player_direction);
+		draw_height = HEIGHT / (cos(angle) * sqrt(pow(point.x-data->player_location.x, 2) + pow(point.y-data->player_location.y, 2)));
 		draw.y = (HEIGHT - draw_height) / 2;
 		if (point.y < data->player_location.y)
 			txt_to_img(data->image, data->north, draw, fabsf(point.x - (int)point.x));
@@ -131,41 +144,41 @@ void ft_hook(void* param)
 		data->forward.y = -0.08;
 	else
 		data->forward.y = -0.02;
-	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
+	if (mlx_is_key_down(data->mlx, MLX_KEY_A))
 	{
 		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, data->player_direction));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
-	if (mlx_is_key_down(data->mlx, MLX_KEY_A))
-	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, -90 + data->player_direction));
-		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
-			data->player_location = temp_loc;
-	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_S))
 	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, 180 + data->player_direction));
+		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, -90 * PI / 180 + data->player_direction));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_D))
 	{
-		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, 90 + data->player_direction));
+		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, 180 * PI / 180  + data->player_direction));
+		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
+			data->player_location = temp_loc;
+	}
+	if (mlx_is_key_down(data->mlx, MLX_KEY_W))
+	{
+		temp_loc = add_vector(data->player_location, rotate_vector(data->forward, 90 * PI / 180  + data->player_direction));
 		if (!(*data->map)[(int)temp_loc.y][(int)temp_loc.x])
 			data->player_location = temp_loc;
 	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT))
 	{
-		data->player_direction -= 2;
+		data->player_direction -= 0.05;
 		if (data->player_direction < 0)
-			data->player_direction += 360;
+			data->player_direction += 2 * PI;
 	}
 	if (mlx_is_key_down(data->mlx, MLX_KEY_RIGHT))
 	{
-		data->player_direction += 2;
-		if (data->player_direction >= 360)
-			data->player_direction -= 360;
+		data->player_direction += 0.05;
+		if (data->player_direction >= 2 * PI)
+			data->player_direction -= 2 * PI;
 	}
 	draw_rectangle(data->image, 0, 0, WIDTH, HEIGHT / 2, 0xFF00FF00);
 	draw_rectangle(data->image, 0, HEIGHT / 2, WIDTH, HEIGHT / 2, 0xFFFF0000);
