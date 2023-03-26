@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/24 18:14:00 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/26 03:30:06 by jan-arvid        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,10 @@ typedef struct	s_vec2i
 /**
  * @param texture Wall textures
  * @param pos Player position
+ * @param map_size
  * @param map
  * @param mlx
  * @param win Main image
- * @param delta_time
  * @param dir Player direction in radians
  * @param fov Filed of view in radians
  * @param dis Distance from pov to window
@@ -49,15 +49,14 @@ typedef struct	s_vec2i
  * @param col_ceiling
  * @param win_wh Half width of main image
 **/
-
 typedef struct	s_data
 {
 	mlx_image_t	texture[4];
 	t_vec2f		pos;
+	t_vec2i		map_size;
 	int			**map;
 	mlx_t		*mlx;
 	mlx_image_t	*win;
-	double		delta_time;
 	float		dir;
 	float		fov;
 	float		dis;
