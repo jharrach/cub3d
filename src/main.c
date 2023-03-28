@@ -30,6 +30,7 @@ void txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit)
 	t_vec2f src_loc;
 	int	draw_height;
 
+	x_hit -= (int)x_hit;
 	draw_height = dst->height - loc.y * 2;
 	y_temp = loc.y;
 	if (loc.y < 0)
@@ -182,8 +183,8 @@ void ft_hook(void* param)
 		if (data->player_direction >= 2 * PI)
 			data->player_direction -= 2 * PI;
 	}
-	draw_rectangle(data->image, 0, 0, WIDTH, HEIGHT / 2, 0xFF00FF00);
-	draw_rectangle(data->image, 0, HEIGHT / 2, WIDTH, HEIGHT / 2, 0xFFFF0000);
+	draw_rectangle(data->image, 0, 0, data->image->width, data->image->height / 2, 0xFF00FF00);
+	draw_rectangle(data->image, 0, data->image->height / 2, data->image->width, data->image->height / 2, 0xFFFF0000);
 	cast_rays(data);
 	char *str = ft_itoa(1 / (mlx_get_time() - data->time));
 	mlx_delete_image(data->mlx, data->prev_text);
