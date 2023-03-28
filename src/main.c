@@ -2,6 +2,8 @@
 
 t_vec2f	npc;
 float	*lens;
+bool	opening;
+float	door;
 
 // t_vec2f add_vector(t_vec2f v1, t_vec2f v2)
 // {
@@ -63,8 +65,10 @@ void txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit)
 		src_loc.y = (float)src->height / draw_height * (loc.y - y_temp);
 		src_loc.x = src->width * x_hit;
 		index = (int)src_loc.y * src->width + src_loc.x;
-		((int *)dst->pixels)[loc.y++ * dst->width + loc.x] \
+		if (((int *)src->pixels)[index])
+			((int *)dst->pixels)[loc.y * dst->width + loc.x] \
 			= factor_pixel(((int *)src->pixels)[index], 1);
+		loc.y++;
 	}
 }
 
@@ -86,12 +90,13 @@ void ft_hook(void* param)
 	int				hoz;
 
 	//ft_memset(data->win->pixels, 0, data->win->width * data->win->height * 4);
-	char *str = ft_itoa(1 / data->mlx->delta_time);
+	char *str = ft_itoa(1.0 / data->mlx->delta_time);
 	mlx_delete_image(data->mlx, data->prev_text);
 	data->prev_text = mlx_put_string(data->mlx, str, 3, 0);
 	free(str);
 	draw_rectangle(data->win, 0, 0, data->win->width, data->win->height / 2, 0xFF00FF00);
 	draw_rectangle(data->win, 0, data->win->height / 2, data->win->width, data->win->height / 2, 0xFFFF0000);
+	ft_memset(lens, 0, data->win->width * 4);
 	i = 0;
 	while (i < (int)data->win->width)
 	{
@@ -176,9 +181,9 @@ void ft_hook(void* param)
 					j = ((int)data->win->height - len) / 2;
 					k = 0;
 					if (hoz && step.x == 1)
-						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
+						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, -(data->pos.y + dir.y * hit));
 					else if (hoz)
-						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, -(data->pos.y + dir.y * hit));
+						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
 					else if (step.y == 1)
 						txt_to_img(data->win, data->texture[2], (t_vec2i){i, j}, (data->pos.x + dir.x * hit));
 					else
@@ -187,26 +192,28 @@ void ft_hook(void* param)
 				}
 				if (data->map[pos.x][pos.y] == 2)
 				{
+					float len2;
 					if (hoz && (!cos_a || leng.x - unit.x / 2.0 < leng.y))
-						len = leng.x - unit.x / 2.0;
+						len2 = leng.x - unit.x / 2.0;
 					else if (!hoz && (!sin_a || leng.y - unit.y / 2.0 <= leng.x))
-						len = leng.y - unit.y / 2.0;
+						len2 = leng.y - unit.y / 2.0;
 					else
 						continue ;
-					hit = len;
-					len *= cosf(del_a);
-					len = data->dis / len;
-					lens[i] = len;
-					j = ((int)data->win->height - len) / 2;
-					k = 0;
-					if (hoz && step.x == 1)
-						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
-					else if (hoz)
-						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
-					else if (step.y == 1)
-						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, (data->pos.x + dir.x * hit));
+					hit = len2;
+					float hit_n;
+					if (hoz)
+						hit_n = data->pos.y + dir.y * hit;
 					else
-						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, (data->pos.x + dir.x * hit));
+						hit_n = data->pos.x + dir.x * hit;
+					hit_n -= (int)hit_n;
+					if (hit_n - (int)hit_n < door)
+						continue ;
+					len2 *= cosf(del_a);
+					len2 = data->dis / len2;
+					lens[i] = len2;
+					j = ((int)data->win->height - len2) / 2;
+					k = 0;
+					txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, hit_n - door);
 					break ;
 				}
 			}
@@ -225,20 +232,23 @@ void ft_hook(void* param)
 		int32_t npc_x;
 		npc_x = npc_r.x * (data->dis / npc_r.y);
 		npc_x += data->win_wh;
+		float hit;
 		npc_r.y = data->dis / npc_r.y;//npc_r.y > 0.05
 		i = -npc_r.y / 2.0;
 		while (i < (npc_r.y) / 2.0)
 		{
-			if (npc_x + i >= 0 && npc_x + i < (int)data->win->width)
+			if (npc_x + i >= 0 && npc_x + i < (int)data->win->width && (npc_r.y > lens[npc_x + i] || lens[npc_x + i] == 0.0))
 			{
 				j = ((int)data->win->height - npc_r.y) / 2;
-				k = 0;
-				while (k++ < npc_r.y)
-				{
-					if (j >= 0 && j < (int)data->win->height && npc_r.y > lens[npc_x + i])
-						mlx_put_pixel(data->win, npc_x + i, j, 0xFF0000FF);
-					j++;
-				}
+				hit = (i + npc_r.y / 2) / npc_r.y;
+				txt_to_img(data->win, data->texture[0], (t_vec2i){npc_x + i, j}, hit);
+				// k = 0;
+				// while (k++ < npc_r.y)
+				// {
+				// 	if (j >= 0 && j < (int)data->win->height && npc_r.y > lens[npc_x + i])
+				// 		mlx_put_pixel(data->win, npc_x + i, j, 0xFF0000FF);
+				// 	j++;
+				// }
 			}
 			i++;
 		}
@@ -315,6 +325,25 @@ void ft_hook(void* param)
 	mlx_get_mouse_pos(data->mlx, &x, &y);
 	(void)y;
 	data->dir = data->dir_delta + x * 0.001;
+	if (opening && door < 1.0)
+	{
+		door += data->mlx->delta_time;
+		if (door > 1.0)
+			door = 1.0;
+	}
+	if (!opening && door > 0.0)
+	{
+		door -= data->mlx->delta_time;
+		if (door < 0.0)
+			door = 0.0;
+	}
+	static double z;
+	z += data->mlx->delta_time;
+	if (z > 1.0)
+	{
+		printf("%f\n", z);
+		z -= 1.0;
+	}
 }
 
 void	scroll(double xdelta, double ydelta, void *param)
@@ -356,6 +385,8 @@ void	ft_keyhook(mlx_key_data_t keydata, void *param)
 			mlx_focus(data->mlx);
 		}
 	}
+	if (keydata.key == MLX_KEY_F && keydata.action == MLX_RELEASE)
+		opening = !opening;
 }
 
 int	main(void)
@@ -377,12 +408,14 @@ int	main(void)
 	data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
 	data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
 	data.texture[0] = mlx_load_png("./rdr2.png");
-	data.texture[1] = mlx_load_png("./rdr22.png");
-	data.texture[2] = mlx_load_png("./wb.png");
-	data.texture[3] = mlx_load_png("./highres.png");
+	data.texture[1] = mlx_load_png("./rdr2.png");
+	data.texture[2] = mlx_load_png("./rdr2.png");
+	data.texture[3] = mlx_load_png("./rdr2.png");
 	data.fov = FOV * PI / 180.0;
 	data.pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
 	npc = (t_vec2f){.x = 3.0f, .y = 3.0f};
+	opening = false;
+	door = 0.0;
 	mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
 	mlx_set_window_limit(mlx, 160, 90, __INT_MAX__, __INT_MAX__);
 	data.win = mlx_new_image(mlx, mlx->width, mlx->height);
