@@ -160,25 +160,28 @@ void ft_hook(void* param)
 	npc_d.x *= -1;
 	npc_r.x = npc_d.x * cosf(data->dir) - npc_d.y * sinf(data->dir);
 	npc_r.y = npc_d.x * sinf(data->dir) + npc_d.y * cosf(data->dir);
-	int32_t npc_x;
-	npc_x = npc_r.x * (data->dis / npc_r.y);
-	npc_x += data->win_wh;
-	npc_r.y = data->dis / npc_r.y;//npc_r.y > 0.05
-	i = -npc_r.y / 2.0;
-	while (i < (npc_r.y) / 2.0)
+	if (npc_r.y > 0.05)
 	{
-		if (npc_x + i >= 0 && npc_x + i < (int)data->win->width)
+		int32_t npc_x;
+		npc_x = npc_r.x * (data->dis / npc_r.y);
+		npc_x += data->win_wh;
+		npc_r.y = data->dis / npc_r.y;//npc_r.y > 0.05
+		i = -npc_r.y / 2.0;
+		while (i < (npc_r.y) / 2.0)
 		{
-			j = ((int)data->win->height - npc_r.y) / 2;
-			k = 0;
-			while (k++ < npc_r.y)
+			if (npc_x + i >= 0 && npc_x + i < (int)data->win->width)
 			{
-				if (j >= 0 && j < (int)data->win->height && npc_r.y > lens[npc_x + i])
-					mlx_put_pixel(data->win, npc_x + i, j, 0xFF0000FF);
-				j++;
+				j = ((int)data->win->height - npc_r.y) / 2;
+				k = 0;
+				while (k++ < npc_r.y)
+				{
+					if (j >= 0 && j < (int)data->win->height && npc_r.y > lens[npc_x + i])
+						mlx_put_pixel(data->win, npc_x + i, j, 0xFF0000FF);
+					j++;
+				}
 			}
+			i++;
 		}
-		i++;
 	}
 
 	t_vec2f	move = {.x = 0.0, .y = 0.0};
@@ -273,6 +276,8 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 		printf("error\n");
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
+	free(lens);
+	lens = malloc(sizeof(*lens) * data->win->width);
 }
 
 void	ft_keyhook(mlx_key_data_t keydata, void *param)
