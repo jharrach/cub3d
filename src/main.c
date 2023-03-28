@@ -3,6 +3,71 @@
 t_vec2f	npc;
 float	*lens;
 
+// t_vec2f add_vector(t_vec2f v1, t_vec2f v2)
+// {
+// 	t_vec2f v_res;
+
+// 	v_res.x = v1.x + v2.x;
+// 	v_res.y = v1.y + v2.y;
+// 	return (v_res);
+// }
+
+// t_vec2f multiply_vector(t_vec2f v1, t_vec2f v2)
+// {
+// 	t_vec2f v_res;
+
+// 	v_res.x = v1.x + v2.x;
+// 	v_res.y = v1.y + v2.y;
+// 	return (v_res);
+// }
+
+void draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col)
+{
+	int	x_temp;
+
+	h += y--;
+	x_temp = x;
+	while (++y < h)
+	{
+		while (x < x_temp + w)
+			((int *)img->pixels)[y * img->width + x++] = col;
+		x = x_temp;
+	}
+}
+
+int32_t factor_pixel(int c, float f)
+{
+	if (f > 1.0)
+		return (0xFF000000);
+    return (255 << 24 | (int)((c >> 16 & 0xFF) * f) << 16 \
+			| (int)((c >> 8 & 0xFF) * f) << 8 
+			| (int)((c & 0xFF) * f));
+}
+
+void txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit)
+{
+	int	y_temp;
+	int	index;
+	t_vec2f src_loc;
+	int	draw_height;
+
+	x_hit -= (int)x_hit;
+	if (x_hit < 0)
+		x_hit = 1 + x_hit;
+	draw_height = dst->height - loc.y * 2;
+	y_temp = loc.y;
+	if (loc.y < 0)
+		loc.y = 0;
+	while (loc.y < y_temp + draw_height && loc.y < (int)dst->height)
+	{
+		src_loc.y = (float)src->height / draw_height * (loc.y - y_temp);
+		src_loc.x = src->width * x_hit;
+		index = (int)src_loc.y * src->width + src_loc.x;
+		((int *)dst->pixels)[loc.y++ * dst->width + loc.x] \
+			= factor_pixel(((int *)src->pixels)[index], 1);
+	}
+}
+
 void ft_hook(void* param)
 {
 	t_data *const	data = param;
@@ -20,7 +85,13 @@ void ft_hook(void* param)
 	float			len;
 	int				hoz;
 
-	ft_memset(data->win->pixels, 0, data->win->width * data->win->height * 4);
+	//ft_memset(data->win->pixels, 0, data->win->width * data->win->height * 4);
+	char *str = ft_itoa(1 / data->mlx->delta_time);
+	mlx_delete_image(data->mlx, data->prev_text);
+	data->prev_text = mlx_put_string(data->mlx, str, 3, 0);
+	free(str);
+	draw_rectangle(data->win, 0, 0, data->win->width, data->win->height / 2, 0xFF00FF00);
+	draw_rectangle(data->win, 0, data->win->height / 2, data->win->width, data->win->height / 2, 0xFFFF0000);
 	i = 0;
 	while (i < (int)data->win->width)
 	{
@@ -95,28 +166,23 @@ void ft_hook(void* param)
 				break ;
 			if (len > 0.05 && pos.x >= 0 && pos.x < data->map_size.x && pos.y >= 0 && pos.y < data->map_size.y)
 			{
+				float hit;
 				if (data->map[pos.x][pos.y] == 1)
 				{
+					hit = len;
 					len *= cosf(del_a);
 					len = data->dis / len;
 					lens[i] = len;
 					j = ((int)data->win->height - len) / 2;
 					k = 0;
-					while (k++ < len)
-					{
-						if (j >= 0 && j < (int)data->win->height)
-						{
-							if (hoz && step.x == 1)
-								mlx_put_pixel(data->win, i, j, 0xFFFFFFFF);
-							else if (hoz)
-								mlx_put_pixel(data->win, i, j, 0xBBBBBBFF);
-							else if (step.y == 1)
-								mlx_put_pixel(data->win, i, j, 0x999999FF);
-							else
-								mlx_put_pixel(data->win, i, j, 0xDDDDDDFF);
-						}
-						j++;
-					}
+					if (hoz && step.x == 1)
+						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
+					else if (hoz)
+						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, -(data->pos.y + dir.y * hit));
+					else if (step.y == 1)
+						txt_to_img(data->win, data->texture[2], (t_vec2i){i, j}, (data->pos.x + dir.x * hit));
+					else
+						txt_to_img(data->win, data->texture[3], (t_vec2i){i, j}, -(data->pos.x + dir.x * hit));
 					break ;
 				}
 				if (data->map[pos.x][pos.y] == 2)
@@ -127,26 +193,20 @@ void ft_hook(void* param)
 						len = leng.y - unit.y / 2.0;
 					else
 						continue ;
+					hit = len;
 					len *= cosf(del_a);
 					len = data->dis / len;
 					lens[i] = len;
 					j = ((int)data->win->height - len) / 2;
 					k = 0;
-					while (k++ < len)
-					{
-						if (j >= 0 && j < (int)data->win->height)
-						{
-							if (hoz && step.x == 1)
-								mlx_put_pixel(data->win, i, j, 0x0000FFFF);
-							else if (hoz)
-								mlx_put_pixel(data->win, i, j, 0x0000BBFF);
-							else if (step.y == 1)
-								mlx_put_pixel(data->win, i, j, 0x000099FF);
-							else
-								mlx_put_pixel(data->win, i, j, 0x0000DDFF);
-						}
-						j++;
-					}
+					if (hoz && step.x == 1)
+						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
+					else if (hoz)
+						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, (data->pos.y + dir.y * hit));
+					else if (step.y == 1)
+						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, (data->pos.x + dir.x * hit));
+					else
+						txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, (data->pos.x + dir.x * hit));
 					break ;
 				}
 			}
@@ -311,6 +371,10 @@ int	main(void)
 	data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 	data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
 	data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
+	data.texture[0] = mlx_load_png("./rdr2.png");
+	data.texture[1] = mlx_load_png("./rdr22.png");
+	data.texture[2] = mlx_load_png("./wb.png");
+	data.texture[3] = mlx_load_png("./highres.png");
 	data.fov = FOV * PI / 180.0;
 	data.pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
 	npc = (t_vec2f){.x = 3.0f, .y = 3.0f};

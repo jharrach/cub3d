@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rburgsta <rburgsta@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/26 13:47:00 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/28 15:53:44 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 # include "../libft/include/libft.h"
 # include "../mlx42/include/MLX42/MLX42.h"
 
-# define WIDTH 960
-# define HEIGHT 540
+# define WIDTH 2000
+# define HEIGHT 1000
 # define FOV 90.0f
 # define PI 3.141592653589793
 
@@ -52,7 +52,7 @@ typedef struct	s_vec2i
 **/
 typedef struct	s_data
 {
-	mlx_image_t	texture[4];
+	mlx_texture_t	*texture[4];
 	t_vec2f		pos;
 	t_vec2i		map_size;
 	int			**map;
@@ -65,6 +65,7 @@ typedef struct	s_data
 	uint32_t	col_floor;
 	uint32_t	col_ceiling;
 	uint32_t	win_wh;
+	mlx_image_t *prev_text;
 }	t_data;
 
 #endif
