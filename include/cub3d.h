@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/26 03:30:06 by jan-arvid        ###   ########.fr       */
+/*   Updated: 2023/03/26 13:47:00 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 
 # include <stdio.h>
 # include <math.h>
+# include <stdbool.h>
 # include "../libft/include/libft.h"
 # include "../mlx42/include/MLX42/MLX42.h"
 
-# define WIDTH 1600
-# define HEIGHT 900
+# define WIDTH 960
+# define HEIGHT 540
 # define FOV 90.0f
 # define PI 3.141592653589793
 
@@ -58,6 +59,7 @@ typedef struct	s_data
 	mlx_t		*mlx;
 	mlx_image_t	*win;
 	float		dir;
+	float		dir_delta;
 	float		fov;
 	float		dis;
 	uint32_t	col_floor;
