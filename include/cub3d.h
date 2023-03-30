@@ -6,13 +6,14 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/30 14:29:01 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/30 18:57:26 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUB3D_H
 # define CUB3D_H
 
+# include <unistd.h>
 # include <fcntl.h>
 # include <stdio.h>
 # include <math.h>
@@ -24,6 +25,14 @@
 # define HEIGHT 1000
 # define FOV 90.0f
 # define PI 3.141592653589793
+# define TEXTURE_CNT 4
+
+typedef enum e_input_types
+{
+	INVALID,
+	TEXTURE,
+	COLOR
+}	t_input_types;
 
 typedef struct	s_vec2f
 {
@@ -36,6 +45,14 @@ typedef struct	s_vec2i
 	int	x;
 	int	y;
 }	t_vec2i;
+
+
+typedef struct s_input
+{
+	char	*filename;
+	int		fd;
+	char	**input;
+}	t_input;
 
 /**
  * @param texture Wall textures
@@ -53,7 +70,7 @@ typedef struct	s_vec2i
 **/
 typedef struct	s_data
 {
-	mlx_texture_t	*texture[4];
+	mlx_texture_t	*texture[TEXTURE_CNT];
 	t_vec2f		pos;
 	t_vec2i		map_size;
 	int			**map;
@@ -63,6 +80,7 @@ typedef struct	s_data
 	float		dir_delta;
 	float		fov;
 	float		dis;
+	float		*depth_buffer;
 	uint32_t	col_floor;
 	uint32_t	col_ceiling;
 	uint32_t	win_wh;

@@ -1,27 +1,8 @@
 #include "../include/cub3d.h"
 
 t_vec2f	npc;
-float	*lens;
 bool	opening;
 float	door;
-
-// t_vec2f add_vector(t_vec2f v1, t_vec2f v2)
-// {
-// 	t_vec2f v_res;
-
-// 	v_res.x = v1.x + v2.x;
-// 	v_res.y = v1.y + v2.y;
-// 	return (v_res);
-// }
-
-// t_vec2f multiply_vector(t_vec2f v1, t_vec2f v2)
-// {
-// 	t_vec2f v_res;
-
-// 	v_res.x = v1.x + v2.x;
-// 	v_res.y = v1.y + v2.y;
-// 	return (v_res);
-// }
 
 void draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col)
 {
@@ -95,7 +76,7 @@ void ft_hook(void* param)
 	free(str);
 	draw_rectangle(data->win, 0, 0, data->win->width, data->win->height / 2, 0xFF00FF00);
 	draw_rectangle(data->win, 0, data->win->height / 2, data->win->width, data->win->height / 2, 0xFFFF0000);
-	ft_memset(lens, 0, data->win->width * 4);
+	ft_memset(data->depth_buffer, 0, data->win->width * 4);
 	i = 0;
 	while (i < (int)data->win->width)
 	{
@@ -176,7 +157,7 @@ void ft_hook(void* param)
 					hit = len;
 					len *= cosf(del_a);
 					len = data->dis / len;
-					lens[i] = len;
+					data->depth_buffer[i] = len;
 					j = ((int)data->win->height - len) / 2;
 					if (hoz && step.x == 1)
 						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, -(data->pos.y + dir.y * hit));
@@ -208,7 +189,7 @@ void ft_hook(void* param)
 						continue ;
 					len2 *= cosf(del_a);
 					len2 = data->dis / len2;
-					lens[i] = len2;
+					data->depth_buffer[i] = len2;
 					j = ((int)data->win->height - len2) / 2;
 					txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, hit_n - door);
 					break ;
@@ -234,7 +215,7 @@ void ft_hook(void* param)
 		i = -npc_r.y / 2.0;
 		while (i < (npc_r.y) / 2.0)
 		{
-			if (npc_x + i >= 0 && npc_x + i < (int)data->win->width && (npc_r.y > lens[npc_x + i] || lens[npc_x + i] == 0.0))
+			if (npc_x + i >= 0 && npc_x + i < (int)data->win->width && (npc_r.y > data->depth_buffer[npc_x + i] || data->depth_buffer[npc_x + i] == 0.0))
 			{
 				j = ((int)data->win->height - npc_r.y) / 2;
 				hit = (i + npc_r.y / 2) / npc_r.y;
@@ -242,7 +223,7 @@ void ft_hook(void* param)
 				// k = 0;
 				// while (k++ < npc_r.y)
 				// {
-				// 	if (j >= 0 && j < (int)data->win->height && npc_r.y > lens[npc_x + i])
+				// 	if (j >= 0 && j < (int)data->win->height && npc_r.y > data->depth_buffer[npc_x + i])
 				// 		mlx_put_pixel(data->win, npc_x + i, j, 0xFF0000FF);
 				// 	j++;
 				// }
@@ -271,6 +252,10 @@ void ft_hook(void* param)
 		npc.x += data->mlx->delta_time;
 	if (mlx_is_key_down(data->mlx, MLX_KEY_RIGHT))
 		npc.x -= data->mlx->delta_time;
+	if (mlx_is_key_down(data->mlx, MLX_KEY_Q))
+		data->dir += PI / 180;
+	if (mlx_is_key_down(data->mlx, MLX_KEY_E))
+		data->dir -= PI / 180;
 	delta.x = move.x * cosf(data->dir) - move.y * sinf(data->dir);
 	delta.y = move.x * sinf(data->dir) + move.y * cosf(data->dir);
 	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT_SHIFT))
@@ -362,8 +347,8 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 		printf("error\n");
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	free(lens);
-	lens = malloc(sizeof(*lens) * data->win->width);
+	free(data->depth_buffer);
+	data->depth_buffer = malloc(sizeof(*data->depth_buffer) * data->win->width);
 }
 
 void	ft_keyhook(mlx_key_data_t keydata, void *param)
@@ -386,68 +371,195 @@ void	ft_keyhook(mlx_key_data_t keydata, void *param)
 		opening = !opening;
 }
 
-
-
-int init_data(char *file)
+void destroy_data(t_data *data, t_input *in_data)
 {
-	int	fd;
+	int	i;
 
-	if (ft_strlen(file) < 5 || ft_strcmp(file + ft_strlen(file) - 4, ".cub"))
-		return (printf("Error\nInput filename not valid!\n"), 1);
-	fd = open(file, O_RDONLY);
-	if (fd == -1)
-		return (printf("Error\nFailed to open input file!\n"), 1);
-	
+	if (data->mlx)
+	{
+		// i = -1;
+		// while (++i < TEXTURE_CNT)
+		// 	if (data->texture[i] != NULL)
+		// 		mlx_delete_texture(data->texture[i]);
+		mlx_terminate(data->mlx);
+	}
+	if (data->depth_buffer != NULL)
+		free(data->depth_buffer);
+	if (in_data->fd != -1)
+		close(in_data->fd);
+	i = 0;
+	while (in_data->input != NULL && in_data->input[i])
+		free(in_data->input[i++]);
+	free(in_data->input);
+}
+
+const char	*types[TEXTURE_CNT] = {"NO ", "SO ", "WE ", "EA "};
+
+t_input_types get_input_type(t_data *data, char *line) //#
+{
+	(void)data;
+	int i;
+
+	if (line == NULL)
+		return (INVALID);
+	i = -1;
+	while (types[++i] != NULL)
+		if (!ft_strncmp(types[i], line, 3))
+			return (TEXTURE);
+	if (!ft_strncmp("F ", line, 2) || !ft_strncmp("C ", line, 2))
+		return (COLOR);
+	return (INVALID);
+}
+
+int	check_int(char *str)
+{
+	size_t	i;
+
+	if ((ft_strlen(str) > 10) || *str == '\0')
+		return (1);
+	i = -1;
+	while (++i < ft_strlen(str))
+		if (str[i] < '0' || str[i] > '9' \
+			|| (str[i] > "2147483647"[i] && ft_strlen(str) > 9))
+			return (1);
+	i = ft_atoi(str);
+	return (i < 256);
+}
+
+// int load_colors(t_data *d, char **input)
+// {
+// 	int	i;
+// 	char **numbers;
+
+// 	if (get_input_type(d, input[0]) == COLOR
+// 		&& get_input_type(d, input[1]) == COLOR)
+// 	{
+// 		i = 2;
+// 		while (input[0][i] == ' ');
+// 			i++;
+		
+		
+// 	}
+
+// }
+
+int load_textures(t_data *d, char **input)
+{
+	int	i;
+	int	i2;
+
+	i = -1;
+	while (get_input_type(d, input[++i]) == TEXTURE)
+	{
+		i2 = 0;
+		while (i2 < TEXTURE_CNT && ft_strncmp(types[i2], input[i], 3))
+			i2++;
+		if (i2 < TEXTURE_CNT && !ft_strncmp(types[i2], input[i], 3))
+		{
+			input[i][ft_strlen(input[i]) - 1] = 0;
+			if (d->texture[i2] == NULL)
+				d->texture[i2] = mlx_load_png(input[i] + 3);
+			else
+				return (printf("Error\nTexture duplicates in input file!\n"), 1);
+			if (d->texture[i2] == NULL)
+				return (printf("Error\nFailed to load texture '%s'!\n", input[i]), 1);
+		}
+	}
+	i = -1;
+	while (++i < TEXTURE_CNT)
+		if (d->texture[i] == NULL)
+			return (printf("Error\nRequired textures are missing!\n"), 1);
 	return (0);
 }
 
-int	main(int argc, char **argv)
+char	**read_input(int fd)
 {
-	//t_data	data;
-	//mlx_t	*mlx;
+	char	temp[5000]; //Temporary
+	if (read(fd, temp, 5000) == -1)
+		return (NULL);
+	return (ft_split(temp, '\n'));
+}
 
+int load_data(t_data *data, t_input *i)
+{
+	if (ft_strlen(i->filename) < 5 \
+		|| ft_strcmp(i->filename + ft_strlen(i->filename) - 4, ".cub")) //#
+		return (printf("Error\nInput filename not valid!\n"), 1); //#
+	i->fd = open(i->filename, O_RDONLY); //#
+	if (i->fd == -1) //#
+		return (printf("Error\nFailed to open input file!\n"), 1); //#
+	i->input = read_input(i->fd);
+	if (i->input == NULL)
+		return (printf("Error\nFailed to read and split input file!\n"), 1);
+	if (load_textures(data, i->input))// || load_colors(data, i->input))
+		return (1);
+	return (0);
+}
+
+int init_data(t_data *data, t_input *in_data) //#
+{
+	int i;
+
+	i = 0;
+	while (i < TEXTURE_CNT)
+		data->texture[i++] = NULL;
+	data->fov = FOV * PI / 180.0;
+	data->pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
+	npc = (t_vec2f){.x = 3.0f, .y = 3.0f};
+	opening = false;
+	door = 0.0;
+	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
+	if (data->mlx == NULL)
+		return (printf("Error\nFailed to initialize MLX instance!\n"), 1);
+	mlx_set_window_limit(data->mlx, 160, 90, __INT_MAX__, __INT_MAX__);
+	data->win = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
+	if (data->win == NULL)
+		return (printf("Error\nFailed to create MLX image!\n"), 1);
+	data->dir_delta = 0.0 * PI / 180.0;
+	data->win_wh = data->win->width / 2;
+	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
+	data->depth_buffer = NULL;
+	data->depth_buffer = malloc(sizeof(float *) * data->win->width);
+	return (load_data(data, in_data));
+}
+
+int	main(int argc, char **argv) //#
+{
+	t_input	in_data;
+	t_data	data;
+
+	data.map_size.x = 10;
+	data.map_size.y = 15;
+	data.map = malloc(sizeof(*(data.map)) * data.map_size.x);
+	data.map[0] = (int []){1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	data.map[1] = (int []){1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	data.map[2] = (int []){1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	data.map[3] = (int []){1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
+	data.map[4] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	data.map[5] = (int []){1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	data.map[6] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
+	data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
+	data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
 	if (argc != 2)
 		return (printf("Error\nWrong number of arguments!\n"), 1);
-	if (init_data(argv[1]))
-		return (1);
-	return (printf("Input Accepted!\n"), 0);
-	// data.map_size.x = 10;
-	// data.map_size.y = 15;
-	// data.map = malloc(sizeof(*(data.map)) * data.map_size.x);
-	// data.map[0] = (int []){1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-	// data.map[1] = (int []){1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[2] = (int []){1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[3] = (int []){1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
-	// data.map[4] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[5] = (int []){1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[6] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
-	// data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
-	// data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
-	// data.texture[0] = mlx_load_png("./rdr2.png");
-	// data.texture[1] = mlx_load_png("./rdr2.png");
-	// data.texture[2] = mlx_load_png("./rdr2.png");
-	// data.texture[3] = mlx_load_png("./rdr2.png");
-	// data.fov = FOV * PI / 180.0;
-	// data.pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
-	// npc = (t_vec2f){.x = 3.0f, .y = 3.0f};
-	// opening = false;
-	// door = 0.0;
-	// mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
-	// mlx_set_window_limit(mlx, 160, 90, __INT_MAX__, __INT_MAX__);
-	// data.win = mlx_new_image(mlx, mlx->width, mlx->height);
-	// lens = malloc(sizeof(*lens) * data.win->width);
-	// mlx_set_cursor_mode(mlx, MLX_MOUSE_DISABLED);
-	// mlx_focus(mlx);
-	// data.dir_delta = 0.0 * PI / 180.0;
-	// data.win_wh = data.win->width / 2;
-	// data.dis = (float)data.win_wh / tanf(data.fov / 2.0);
-	// data.mlx = mlx;
-	// mlx_image_to_window(mlx, data.win, 0, 0);
-	// mlx_loop_hook(mlx, ft_hook, &data);
-	// mlx_scroll_hook(mlx, scroll, &data);
-	// mlx_key_hook(mlx, ft_keyhook, &data);
-	// mlx_resize_hook(mlx, ft_resize_hook, &data);
-	// mlx_loop(mlx);
-	// mlx_terminate(mlx);
+	in_data.filename = argv[1];
+	in_data.fd = -1;
+	in_data.input = NULL;
+	if (!init_data(&data, &in_data))
+	{
+		mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
+		mlx_focus(data.mlx);
+		if (mlx_image_to_window(data.mlx, data.win, 0, 0) != -1)
+		{
+			mlx_loop_hook(data.mlx, ft_hook, &data);
+			mlx_scroll_hook(data.mlx, scroll, &data);
+			mlx_key_hook(data.mlx, ft_keyhook, &data);
+			mlx_resize_hook(data.mlx, ft_resize_hook, &data);
+			mlx_loop(data.mlx);
+		}
+		printf("Success!\n");
+	}
+	destroy_data(&data, &in_data);
+	return (printf("Exited!\n"), 0);
 }
