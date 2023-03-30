@@ -77,7 +77,6 @@ void ft_hook(void* param)
 	t_data *const	data = param;
 	int32_t		i;
 	int				j;
-	int				k;
 	float			a;
 	float			del_a;
 	t_vec2f			dir;
@@ -179,7 +178,6 @@ void ft_hook(void* param)
 					len = data->dis / len;
 					lens[i] = len;
 					j = ((int)data->win->height - len) / 2;
-					k = 0;
 					if (hoz && step.x == 1)
 						txt_to_img(data->win, data->texture[0], (t_vec2i){i, j}, -(data->pos.y + dir.y * hit));
 					else if (hoz)
@@ -212,7 +210,6 @@ void ft_hook(void* param)
 					len2 = data->dis / len2;
 					lens[i] = len2;
 					j = ((int)data->win->height - len2) / 2;
-					k = 0;
 					txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, hit_n - door);
 					break ;
 				}
@@ -389,48 +386,68 @@ void	ft_keyhook(mlx_key_data_t keydata, void *param)
 		opening = !opening;
 }
 
-int	main(void)
-{
-	t_data	data;
-	mlx_t	*mlx;
 
-	data.map_size.x = 10;
-	data.map_size.y = 15;
-	data.map = malloc(sizeof(*(data.map)) * data.map_size.x);
-	data.map[0] = (int []){1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-	data.map[1] = (int []){1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[2] = (int []){1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[3] = (int []){1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
-	data.map[4] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[5] = (int []){1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[6] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
-	data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
-	data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
-	data.texture[0] = mlx_load_png("./rdr2.png");
-	data.texture[1] = mlx_load_png("./rdr2.png");
-	data.texture[2] = mlx_load_png("./rdr2.png");
-	data.texture[3] = mlx_load_png("./rdr2.png");
-	data.fov = FOV * PI / 180.0;
-	data.pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
-	npc = (t_vec2f){.x = 3.0f, .y = 3.0f};
-	opening = false;
-	door = 0.0;
-	mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
-	mlx_set_window_limit(mlx, 160, 90, __INT_MAX__, __INT_MAX__);
-	data.win = mlx_new_image(mlx, mlx->width, mlx->height);
-	lens = malloc(sizeof(*lens) * data.win->width);
-	mlx_set_cursor_mode(mlx, MLX_MOUSE_DISABLED);
-	mlx_focus(mlx);
-	data.dir_delta = 0.0 * PI / 180.0;
-	data.win_wh = data.win->width / 2;
-	data.dis = (float)data.win_wh / tanf(data.fov / 2.0);
-	data.mlx = mlx;
-	mlx_image_to_window(mlx, data.win, 0, 0);
-	mlx_loop_hook(mlx, ft_hook, &data);
-	mlx_scroll_hook(mlx, scroll, &data);
-	mlx_key_hook(mlx, ft_keyhook, &data);
-	mlx_resize_hook(mlx, ft_resize_hook, &data);
-	mlx_loop(mlx);
-	mlx_terminate(mlx);
+
+int init_data(char *file)
+{
+	int	fd;
+
+	if (ft_strlen(file) < 5 || ft_strcmp(file + ft_strlen(file) - 4, ".cub"))
+		return (printf("Error\nInput filename not valid!\n"), 1);
+	fd = open(file, O_RDONLY);
+	if (fd == -1)
+		return (printf("Error\nFailed to open input file!\n"), 1);
+	
+	return (0);
+}
+
+int	main(int argc, char **argv)
+{
+	//t_data	data;
+	//mlx_t	*mlx;
+
+	if (argc != 2)
+		return (printf("Error\nWrong number of arguments!\n"), 1);
+	if (init_data(argv[1]))
+		return (1);
+	return (printf("Input Accepted!\n"), 0);
+	// data.map_size.x = 10;
+	// data.map_size.y = 15;
+	// data.map = malloc(sizeof(*(data.map)) * data.map_size.x);
+	// data.map[0] = (int []){1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	// data.map[1] = (int []){1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	// data.map[2] = (int []){1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	// data.map[3] = (int []){1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
+	// data.map[4] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	// data.map[5] = (int []){1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	// data.map[6] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
+	// data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	// data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
+	// data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
+	// data.texture[0] = mlx_load_png("./rdr2.png");
+	// data.texture[1] = mlx_load_png("./rdr2.png");
+	// data.texture[2] = mlx_load_png("./rdr2.png");
+	// data.texture[3] = mlx_load_png("./rdr2.png");
+	// data.fov = FOV * PI / 180.0;
+	// data.pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
+	// npc = (t_vec2f){.x = 3.0f, .y = 3.0f};
+	// opening = false;
+	// door = 0.0;
+	// mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
+	// mlx_set_window_limit(mlx, 160, 90, __INT_MAX__, __INT_MAX__);
+	// data.win = mlx_new_image(mlx, mlx->width, mlx->height);
+	// lens = malloc(sizeof(*lens) * data.win->width);
+	// mlx_set_cursor_mode(mlx, MLX_MOUSE_DISABLED);
+	// mlx_focus(mlx);
+	// data.dir_delta = 0.0 * PI / 180.0;
+	// data.win_wh = data.win->width / 2;
+	// data.dis = (float)data.win_wh / tanf(data.fov / 2.0);
+	// data.mlx = mlx;
+	// mlx_image_to_window(mlx, data.win, 0, 0);
+	// mlx_loop_hook(mlx, ft_hook, &data);
+	// mlx_scroll_hook(mlx, scroll, &data);
+	// mlx_key_hook(mlx, ft_keyhook, &data);
+	// mlx_resize_hook(mlx, ft_resize_hook, &data);
+	// mlx_loop(mlx);
+	// mlx_terminate(mlx);
 }
