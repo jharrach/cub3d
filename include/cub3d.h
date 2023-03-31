@@ -6,13 +6,15 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 14:11:29 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 15:47:00 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUB3D_H
 # define CUB3D_H
 
+#include <stdlib.h>
+#include <errno.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <stdio.h>
@@ -46,7 +48,7 @@ typedef struct s_input
 	char	*filename;
 	int		fd;
 	char	**input;
-	int		i;
+	char	**i;
 }	t_input;
 
 typedef struct s_vec2f
@@ -129,6 +131,7 @@ typedef struct s_data
 	uint32_t		col_ceiling;
 	uint32_t		win_wh;
 	t_door			door;
+	t_input			in;
 }	t_data;
 
 void	ft_rays(t_data *data);
