@@ -6,7 +6,7 @@
 #    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/30 17:35:12 by jharrach         ###   ########.fr        #
+#    Updated: 2023/03/31 18:27:28 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,9 @@ LOADLIBES   += -ldl -pthread
 endif
 
 all: $(NAME)
+
+optimized: pfclean
+	@$(MAKE) CFLAGS="-O3"
 
 $(NAME): $(OBJ)
 	@cmake -S $(MLX42_DIR) -B $(MLX42_B_DIR) 2>&1 | sed -e 's/^/mlx42: /;'

@@ -3,7 +3,7 @@ SO  ./textures/rdr22.png
 WE               ./textures/highres.png
 EA      ./textures/wood.png
 DO               ./textures/highres.png
-NP      ./textures/wood.png
+NP      ./textures/dice.png
 
 F220,100,0
 C   225,30,0
