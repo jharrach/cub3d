@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 19:25:46 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/31 20:50:42 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
 
-void destroy_data(t_data *data, t_input *in, int ext, char *error)
+void	destroy_data(t_data *data, t_input *in, int ext, char *error)
 {
 	int	i;
 
@@ -371,19 +371,18 @@ void	ft_keyhook(mlx_key_data_t keydata, void *param)
 	}
 }
 
-const char*	get_type(int i)
+const char	*get_type(int i)
 {
-  const char	*types[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
+	const char	*types[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
 
-  if (i < 0 || i > TEXTURE_CNT - 1)
-	return (NULL);
-  return (types[i]);
+	if (i < 0 || i > TEXTURE_CNT - 1)
+		return (NULL);
+	return (types[i]);
 }
 
-t_input_types	get_input_type(t_data *data, char *line)
+t_input_types	get_input_type(char *line)
 {
-	(void)data;
-	int i;
+	int	i;
 
 	if (line == NULL)
 		return (INVALID);
@@ -427,16 +426,18 @@ int	cnt_spaces(char *str)
 
 void	load_map(t_data *d, t_input *in)
 {
-	while (*in->i != *in->input && get_input_type(d, *in->i) == NEWLINE)
+	(void)d;
+	while (*in->i != *in->input && get_input_type(*in->i) == NEWLINE)
 		in->i++;
 }
 
 int	load_colors(t_data *d, t_input *in)
 {
-	while (*in->i != *in->input && get_input_type(d, *in->i) == NEWLINE)
+	(void)d;
+	while (*in->i != *in->input && get_input_type(*in->i) == NEWLINE)
 		in->i++;
-	if (get_input_type(d, *in->i) == COLOR
-		&& get_input_type(d, *(in->i + 1)) == COLOR)
+	if (get_input_type(*in->i) == COLOR
+		&& get_input_type(*(in->i + 1)) == COLOR)
 	{
 		printf("DEBUG TEST: Colors validated\n");
 		in->i += 2;
@@ -450,23 +451,20 @@ int	load_textures(t_data *d, t_input *in)
 {
 	int	i;
 
-	while (*in->i != *in->input && get_input_type(d, *in->i) == NEWLINE)
+	while (*in->i != *in->input && get_input_type(*in->i) == NEWLINE)
 		in->i++;
-	while (get_input_type(d, *in->i) == TEXTURE)
+	while (get_input_type(*in->i) == TEXTURE)
 	{
 		i = 0;
 		while (i < TEXTURE_CNT && ft_strncmp(get_type(i), *in->i, 2))
 			i++;
-		if (i < TEXTURE_CNT && !ft_strncmp(get_type(i), *in->i, 2))
-		{
-			(*in->i)[ft_strlen(*in->i) - 1] = 0;
-			(*in->i)[ft_strlen(*in->i) - 1] = 0; //Only windows
-			if (d->texture[i] != NULL)
-				return (printf("Error\nTexture duplicate input file!\n"), 1);
-			d->texture[i] = mlx_load_png(*in->i + cnt_spaces(*in->i + 2) + 2);
-			if (d->texture[i] == NULL)
-				return (printf("Error\nTexture load fail!\n"), 1);
-		}
+		(*in->i)[ft_strlen(*in->i) - 1] = 0;
+		(*in->i)[ft_strlen(*in->i) - 1] = 0; //Only windows
+		if (d->texture[i] != NULL)
+			return (printf("Error\nTexture duplicate input file!\n"), 1);
+		d->texture[i] = mlx_load_png(*in->i + cnt_spaces(*in->i + 2) + 2);
+		if (d->texture[i] == NULL)
+			return (printf("Error\nTexture load fail!\n"), 1);
 		in->i++;
 	}
 	i = -1;
@@ -507,7 +505,7 @@ void	load_data(t_data *data, t_input *in)
 {
 	if (read_input(in) || in->i == NULL)
 		destroy_data(data, in, 1, "Error whilst reading input file!");
-	if (get_input_type(data, *in->i) == TEXTURE)
+	if (get_input_type(*in->i) == TEXTURE)
 	{
 		if (load_textures(data, in) || load_colors(data, in))
 			destroy_data(data, in, 1, NULL);
