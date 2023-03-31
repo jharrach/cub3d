@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 17:44:35 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/31 19:07:39 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <stdio.h>
 # include <math.h>
 # include <stdbool.h>
+# include <fcntl.h>
 # include "../libft/include/libft.h"
 # include "../mlx42/include/MLX42/MLX42.h"
 
@@ -26,6 +27,27 @@
 # define SHIFT_MULTIPLIER 2.0
 # define CONTROL_MULTIPLIER 0.5
 # define PLAYER_HALF_WIDTH 0.25
+# define TEXTURE_CNT 6
+
+typedef enum e_input_types
+{
+	INVALID,
+	NEWLINE,
+	TEXTURE,
+	COLOR
+}	t_input_types;
+
+/**
+ * @param fd File descriptor to the input file
+ * @param input The input data read from the file
+ * @param i Pointer to next line next to processed
+**/
+typedef struct s_input
+{
+	int		fd;
+	char	**input;
+	char	**i;
+}	t_input;
 
 typedef struct s_vec2f
 {
@@ -116,7 +138,7 @@ typedef struct s_entity
 **/
 typedef struct s_data
 {
-	mlx_texture_t	*texture[6];
+	mlx_texture_t	*texture[TEXTURE_CNT];
 	t_vec2f			pos;
 	t_vec2i			map_size;
 	int				**map;
@@ -134,6 +156,7 @@ typedef struct s_data
 	t_door			door;
 	t_entity		*entity;
 	int32_t			num_entities;
+	t_input			in;
 }	t_data;
 
 void	ft_rays(t_data *data);
