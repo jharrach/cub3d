@@ -1,0 +1,86 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing_utils.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/03/31 23:09:05 by rburgsta          #+#    #+#             */
+/*   Updated: 2023/03/31 23:09:05 by rburgsta         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../include/cub3d.h"
+
+void ft_free2d(char **arr)
+{
+	int	i;
+
+	i = 0;
+	while (arr != NULL && arr[i] != NULL)
+		free(arr[i++]);
+	free(arr);
+}
+
+const char	*get_ident(int i)
+{
+	const char	*texture[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
+
+	if (i < 0 || i > TEXTURE_CNT - 1)
+		return (NULL);
+	return (texture[i]);
+}
+
+t_input_types	get_input_type(char *line)
+{
+	int	i;
+
+	if (line == NULL)
+		return (INVALID);
+	if (ft_strlen(line) == 1 && *line == '\n')
+		return (NEWLINE);
+	else if (ft_strlen(line) == 2 && *line == '\r' && line[1] == '\n') //Only windows
+		return (NEWLINE); //Only windows
+	i = -1;
+	while (++i < TEXTURE_CNT)
+		if (!ft_strncmp(get_ident(i), line, 2))
+			return (TEXTURE);
+	if (!ft_strncmp("F", line, 1) || !ft_strncmp("C", line, 1))
+		return (COLOR);
+	return (INVALID);
+}
+
+int	cnt_spaces(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] == ' ' && str[i] != '\n' && str[i] != '\0')
+		i++;
+	return (i);
+}
+
+int	check_ints(char **str)
+{
+	int		i;
+	size_t	i2;
+
+	i = -1;
+	if (str == NULL)
+		return (1);
+	while (str[++i] != NULL)
+	{
+		if ((ft_strlen(str[i]) > 3) || *str[i] == '\0')
+			return (ft_free2d(str), 1);
+		i2 = -1;
+		while (++i2 < ft_strlen(str[i]))
+			if (str[i][i2] < '0' || str[i][i2] > '9')
+				return (ft_free2d(str), 1);
+		i2 = ft_atoi(str[i]);
+		if (i2 > 255)
+			return (ft_free2d(str), 1);
+	}
+	if (i != 3)
+		return (ft_free2d(str), 1);
+	return (0);
+}

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
+#    By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/31 18:27:28 by jharrach         ###   ########.fr        #
+#    Updated: 2023/03/31 23:09:26 by rburgsta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,8 @@ MLX42_DIR	= mlx42/
 MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
 
-SRC			= main ray ray_collision drawings
+SRC			= main ray ray_collision drawings init \
+			  parsing parsing_map parsing_utils destroy
 OBJ			= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC)))
 
 MLX42		= $(MLX42_B_DIR)libmlx42.a

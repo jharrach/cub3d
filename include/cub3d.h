@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 19:07:39 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/31 23:16:35 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ typedef enum e_input_types
 }	t_input_types;
 
 /**
+ * Input data for parsing
  * @param fd File descriptor to the input file
  * @param input The input data read from the file
  * @param i Pointer to next line next to processed
@@ -159,11 +160,39 @@ typedef struct s_data
 	t_input			in;
 }	t_data;
 
-void	ft_rays(t_data *data);
-void	wall_collision(t_ray *ray, t_data *data, int32_t i);
-bool	door_collision(t_ray *ray, t_data *data, int32_t i);
-void	draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
-int32_t	factor_pixel(int c, float f);
-void	txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
+//init
+/**
+ * @param fn The path of the input file
+**/
+void			init_data(t_data *data, char *fn);
+
+//parsing
+void			load_data(t_data *data, t_input *in);
+
+//parsing_map
+void			load_map(t_data *d, t_input *in);
+
+//parsing_utils
+void			ft_free2d(char **arr);
+const char		*get_ident(int i);
+t_input_types	get_input_type(char *line);
+int				cnt_spaces(char *str);
+int				check_ints(char **str);
+
+//destroy
+/**
+ * @param int The input data
+ * @param ext Whether it should exit
+ * @param error An optional error message
+**/
+void			destroy_data(t_data *data, t_input *in, bool ext, char *error);
+
+
+void			ft_rays(t_data *data);
+void			wall_collision(t_ray *ray, t_data *data, int32_t i);
+bool			door_collision(t_ray *ray, t_data *data, int32_t i);
+void			draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
+int32_t			factor_pixel(int c, float f);
+void			txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
 
 #endif
