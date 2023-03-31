@@ -5,8 +5,8 @@ EA      ./textures/wood.png
 DO               ./textures/highres.png
 NP      ./textures/dice.png
 
-F 0,255,0
 C   0,0,255
+F 0,255,0
 
         1111111111111111111111111
         1000000000110000000000001

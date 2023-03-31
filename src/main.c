@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 22:46:38 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 22:51:01 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,11 +457,10 @@ int	load_color(t_data *data, uint32_t *dest)
 		(*data->in.i)[ft_strlen(*data->in.i) - 1] = 0; //Only windows
 	i = cnt_spaces(*data->in.i + 1) + 1;
 	values = ft_split(*data->in.i + i, ',');
-	printf("%p '%s' '%s' '%s'\n", values, values[0], values[1], values[2]);
 	if (check_ints(values))
 		return (printf("Error\nInvalid color format!\n"), 1);
-	*dest = 255 << 24 | ft_atoi(values[0]) << 16 \
-		| ft_atoi(values[1]) << 8 | ft_atoi(values[2]);
+	*dest = 255 << 24 | ft_atoi(values[0]) \
+		| ft_atoi(values[1]) << 8 | ft_atoi(values[2]) << 16;
 	ft_free2d(values);
 	data->in.i++;
 	return (0);
