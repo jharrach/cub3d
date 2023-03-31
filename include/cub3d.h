@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/30 18:57:26 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 02:15:22 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 typedef enum e_input_types
 {
 	INVALID,
+	NEWLINE,
 	TEXTURE,
 	COLOR
 }	t_input_types;
@@ -46,12 +47,18 @@ typedef struct	s_vec2i
 	int	y;
 }	t_vec2i;
 
-
+/**
+ * @param filename Path of the input file
+ * @param fd File descriptor to the input file
+ * @param input The input data read from the file
+ * @param i The index the parsing is currently at
+**/
 typedef struct s_input
 {
 	char	*filename;
 	int		fd;
 	char	**input;
+	int		i;
 }	t_input;
 
 /**
@@ -81,8 +88,7 @@ typedef struct	s_data
 	float		fov;
 	float		dis;
 	float		*depth_buffer;
-	uint32_t	col_floor;
-	uint32_t	col_ceiling;
+	uint32_t	col[2];
 	uint32_t	win_wh;
 	mlx_image_t *prev_text;
 }	t_data;
