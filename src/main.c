@@ -6,7 +6,7 @@ void destroy_data(t_data *data, t_input *in, int ext, char *error)
 {
 	int	i;
 
-	if (data != NULL && data->mlx)
+	if (data != NULL && data->mlx != NULL)
 	{
 		// i = -1;
 		// while (++i < TEXTURE_CNT)
@@ -14,12 +14,11 @@ void destroy_data(t_data *data, t_input *in, int ext, char *error)
 		// 		mlx_delete_texture(data->texture[i]);
 		mlx_terminate(data->mlx);
 	}
-	if (data != NULL && data->ray_lenghts != NULL)
-		free(data->ray_lenghts);
-	if (in != NULL && in->fd != -1)
+	free(data->ray_lenghts);
+	if (in->fd != -1)
 		close(in->fd);
 	i = 0;
-	while (in != NULL && in->input[i])
+	while (in->input != NULL && in->input[i] != NULL)
 		free(in->input[i++]);
 	free(in->input);
 	if (error != NULL)
@@ -306,6 +305,7 @@ int	load_colors(t_data *d, t_input *in)
 	if (get_input_type(d, *in->i) == COLOR
 		&& get_input_type(d, *(in->i + 1)) == COLOR)
 	{
+		
 		printf("DEBUG TEST: Colors validated\n");
 		in->i += 2;
 	}
@@ -373,26 +373,21 @@ int	read_input(t_input *in)
 
 void	load_data(t_data *data, t_input *in)
 {
-	if (ft_strlen(in->filename) < 5 \
-		|| ft_strcmp(in->filename + ft_strlen(in->filename) - 4, ".cub"))
-		destroy_data(data, &data->in, 1, "Input filename not valid!");
-	in->fd = open(in->filename, O_RDONLY);
-	if (in->fd == -1)
-		destroy_data(data, &data->in, 1, "Failed to open input file!");
 	if (read_input(in) || in->i == NULL)
-		destroy_data(data, &data->in, 1, "Error whilst reading input file!");
+		destroy_data(data, in, 1, "Error whilst reading input file!");
 	if (get_input_type(data, *in->i) == TEXTURE)
 	{
 		if (load_textures(data, in) || load_colors(data, in))
-			destroy_data(data, &data->in, 1, NULL);
+			destroy_data(data, in, 1, NULL);
 	}
 	else if (load_colors(data, in) || load_textures(data, in))
-		destroy_data(data, &data->in, 1, NULL);
+		destroy_data(data, in, 1, NULL);
 	load_map(data, in);
 }
 
-void	init_data(t_data *data)
+void	init_data(t_data *data, char *fn)
 {
+	data->ray_lenghts = NULL;
 	ft_memset(data->texture, 0, sizeof(data->texture));
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
@@ -400,16 +395,22 @@ void	init_data(t_data *data)
 	data->door.moved = -1.0;
 	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
 	if (data->mlx == NULL)
-		destroy_data(data, &data->in, 1, "Failed to init MLX instance!");
+		destroy_data(data, &data->in, 1, "Failed to init MLX window!");
+	if (ft_strlen(fn) < 5 || ft_strcmp(fn + ft_strlen(fn) - 4, ".cub"))
+		destroy_data(data, &data->in, 1, "Input filename type not valid!");
+	data->in.fd = open(fn, O_RDONLY);
+	if (data->in.fd == -1)
+		destroy_data(data, &data->in, 1, "Failed to open input file!");
 	mlx_set_window_limit(data->mlx, 160, 90, __INT_MAX__, __INT_MAX__);
 	data->win = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
 	if (data->win == NULL)
 		destroy_data(data, &data->in, 1, "Failed to create MLX image!");
+	data->ray_lenghts = malloc(sizeof(float *) * data->win->width);
+	if (data->ray_lenghts == NULL)
+		destroy_data(data, &data->in, 1, "Failed to allocate ray_lenghts!");
 	data->dir_delta = 0.0 * PI / 180.0;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	data->ray_lenghts = NULL;
-	data->ray_lenghts = malloc(sizeof(float *) * data->win->width);
 	load_data(data, &data->in);
 }
 
@@ -432,10 +433,9 @@ int	main(int argc, char **argv)
 	data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
 	if (argc != 2)
 		return (printf("Error\nWrong number of arguments!\n"), 1);
-	data.in.filename = argv[1];
 	data.in.fd = -1;
 	data.in.input = NULL;
-	init_data(&data);
+	init_data(&data, argv[1]);
 	mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
 	mlx_focus(data.mlx);
 	if (mlx_image_to_window(data.mlx, data.win, 0, 0) == -1)

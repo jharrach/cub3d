@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 16:19:43 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 17:38:11 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,12 @@ typedef enum e_input_types
 }	t_input_types;
 
 /**
- * @param filename Path of the input file
  * @param fd File descriptor to the input file
  * @param input The input data read from the file
- * @param i The index the parsing is currently at
+ * @param i Pointer to next line next to processed
 **/
 typedef struct s_input
 {
-	char	*filename;
 	int		fd;
 	char	**input;
 	char	**i;
