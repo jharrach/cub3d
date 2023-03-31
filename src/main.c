@@ -23,7 +23,7 @@ void destroy_data(t_data *data, t_input *in, int ext, char *error)
 		free(in->input[i++]);
 	free(in->input);
 	if (error != NULL)
-		printf("Error\n%s", error);
+		printf("Error\n%s\n", error);
 	if (ext == 1)
 		exit(1);
 }
@@ -35,12 +35,12 @@ void	ft_fps(t_data *data, int32_t x, int32_t y)
 
 	str = ft_itoa(1.0 / data->mlx->delta_time);
 	if (!str)
-		destroy_data(data, &data->in, 1, "ft_fps");
+		destroy_data(data, &data->in, 1, "ft_fps itoa fail");
 	mlx_delete_image(data->mlx, img);
 	img = mlx_put_string(data->mlx, str, x, y);
 	free(str);
 	if (!img)
-		destroy_data(data, &data->in, 1, "ft_fps");
+		destroy_data(data, &data->in, 1, "ft_fps putstring fail");
 }
 
 void ft_hook(void* param)
@@ -72,7 +72,7 @@ void ft_hook(void* param)
 			{
 				int	j = ((int)data->win->height - npc_r.y) / 2;
 				hit = (i + npc_r.y / 2) / npc_r.y;
-				txt_to_img(data->win, data->texture[0], (t_vec2i){npc_x + i, j}, hit);
+				txt_to_img(data->win, data->texture[5], (t_vec2i){npc_x + i, j}, hit);
 			}
 			i++;
 		}
@@ -239,7 +239,14 @@ void	ft_keyhook(mlx_key_data_t keydata, void *param)
 	}
 }
 
-const char	*types[TEXTURE_CNT] = {"NO", "SO", "WE", "EA"};
+const char*	get_type(int i)
+{
+  const char	*types[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
+
+  if (i < 0 || i > TEXTURE_CNT - 1)
+	return (NULL);
+  return (types[i]);
+}
 
 t_input_types	get_input_type(t_data *data, char *line)
 {
@@ -253,8 +260,8 @@ t_input_types	get_input_type(t_data *data, char *line)
 	else if (ft_strlen(line) == 2 && *line == '\r' && line[1] == '\n') //Only windows
 		return (NEWLINE); //Only windows
 	i = -1;
-	while (types[++i] != NULL)
-		if (!ft_strncmp(types[i], line, 2))
+	while (++i < TEXTURE_CNT)
+		if (!ft_strncmp(get_type(i), line, 2))
 			return (TEXTURE);
 	if (!ft_strncmp("F", line, 1) || !ft_strncmp("C", line, 1))
 		return (COLOR);
@@ -286,11 +293,10 @@ int	cnt_spaces(char *str)
 	return (i);
 }
 
-int load_map(t_data *d, t_input *in)
+void	load_map(t_data *d, t_input *in)
 {
 	while (*in->i != *in->input && get_input_type(d, *in->i) == NEWLINE)
 		in->i++;
-	return (0);
 }
 
 int	load_colors(t_data *d, t_input *in)
@@ -317,9 +323,9 @@ int	load_textures(t_data *d, t_input *in)
 	while (get_input_type(d, *in->i) == TEXTURE)
 	{
 		i = 0;
-		while (i < TEXTURE_CNT && ft_strncmp(types[i], *in->i, 2))
+		while (i < TEXTURE_CNT && ft_strncmp(get_type(i), *in->i, 2))
 			i++;
-		if (i < TEXTURE_CNT && !ft_strncmp(types[i], *in->i, 2))
+		if (i < TEXTURE_CNT && !ft_strncmp(get_type(i), *in->i, 2))
 		{
 			(*in->i)[ft_strlen(*in->i) - 1] = 0;
 			(*in->i)[ft_strlen(*in->i) - 1] = 0; //Only windows
@@ -369,12 +375,12 @@ void	load_data(t_data *data, t_input *in)
 {
 	if (ft_strlen(in->filename) < 5 \
 		|| ft_strcmp(in->filename + ft_strlen(in->filename) - 4, ".cub"))
-		destroy_data(data, &data->in, 1, "Input filename not valid!\n");
+		destroy_data(data, &data->in, 1, "Input filename not valid!");
 	in->fd = open(in->filename, O_RDONLY);
 	if (in->fd == -1)
-		destroy_data(data, &data->in, 1, "Failed to open input file!\n");
+		destroy_data(data, &data->in, 1, "Failed to open input file!");
 	if (read_input(in) || in->i == NULL)
-		destroy_data(data, &data->in, 1, "Error whilst reading input file!\n");
+		destroy_data(data, &data->in, 1, "Error whilst reading input file!");
 	if (get_input_type(data, *in->i) == TEXTURE)
 	{
 		if (load_textures(data, in) || load_colors(data, in))
@@ -387,22 +393,18 @@ void	load_data(t_data *data, t_input *in)
 
 void	init_data(t_data *data)
 {
-	int	i;
-
-	i = 0;
-	while (i < TEXTURE_CNT)
-		data->texture[i++] = NULL;
+	ft_memset(data->texture, 0, sizeof(data->texture));
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){.x = 2.0f, .y = 2.0f};
 	npc = (t_vec2f){.x = 3.0f, .y = 3.0f};
 	data->door.moved = -1.0;
 	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
 	if (data->mlx == NULL)
-		destroy_data(data, &data->in, 1, "Failed to init MLX instance!\n");
+		destroy_data(data, &data->in, 1, "Failed to init MLX instance!");
 	mlx_set_window_limit(data->mlx, 160, 90, __INT_MAX__, __INT_MAX__);
 	data->win = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
 	if (data->win == NULL)
-		destroy_data(data, &data->in, 1, "Failed to create MLX image!\n");
+		destroy_data(data, &data->in, 1, "Failed to create MLX image!");
 	data->dir_delta = 0.0 * PI / 180.0;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
@@ -436,14 +438,13 @@ int	main(int argc, char **argv)
 	init_data(&data);
 	mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
 	mlx_focus(data.mlx);
-	if (mlx_image_to_window(data.mlx, data.win, 0, 0) != -1)
-	{
-		mlx_loop_hook(data.mlx, ft_hook, &data);
-		mlx_scroll_hook(data.mlx, scroll, &data);
-		mlx_key_hook(data.mlx, ft_keyhook, &data);
-		mlx_resize_hook(data.mlx, ft_resize_hook, &data);
-		mlx_loop(data.mlx);
-	}
+	if (mlx_image_to_window(data.mlx, data.win, 0, 0) == -1)
+		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
+	mlx_loop_hook(data.mlx, ft_hook, &data);
+	mlx_scroll_hook(data.mlx, scroll, &data);
+	mlx_key_hook(data.mlx, ft_keyhook, &data);
+	mlx_resize_hook(data.mlx, ft_resize_hook, &data);
+	mlx_loop(data.mlx);
 	destroy_data(&data, &data.in, 0, NULL);
 	return (printf("Exited!\n"), 0);
 }

@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 15:47:00 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 16:19:43 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 # define HEIGHT 1000
 # define FOV 90.0f
 # define PI 3.141592653589793
-# define TEXTURE_CNT 4
+# define TEXTURE_CNT 6
 
 typedef enum e_input_types
 {
@@ -116,7 +116,7 @@ typedef struct s_door
 **/
 typedef struct s_data
 {
-	mlx_texture_t	*texture[6];
+	mlx_texture_t	*texture[TEXTURE_CNT];
 	t_vec2f			pos;
 	t_vec2i			map_size;
 	int				**map;
