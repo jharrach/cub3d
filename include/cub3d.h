@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/30 19:58:55 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/31 17:44:35 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@
 # define HEIGHT 810
 # define FOV 90.0f
 # define PI 3.141592653589793
+# define SHIFT_MULTIPLIER 2.0
+# define CONTROL_MULTIPLIER 0.5
+# define PLAYER_HALF_WIDTH 0.25
 
 typedef struct s_vec2f
 {
@@ -35,6 +38,22 @@ typedef struct s_vec2i
 	int	x;
 	int	y;
 }	t_vec2i;
+
+typedef struct s_rectf
+{
+	t_vec2f	tr;
+	t_vec2f	tl;
+	t_vec2f	br;
+	t_vec2f	bl;
+}	t_rectf;
+
+typedef struct s_recti
+{
+	t_vec2i	tr;
+	t_vec2i	tl;
+	t_vec2i	br;
+	t_vec2i	bl;
+}	t_recti;
 
 /**
  * @param unit length per cell
@@ -72,6 +91,14 @@ typedef struct s_door
 	bool	opens;
 }	t_door;
 
+typedef struct s_entity
+{
+	t_vec2f			pos;
+	t_vec2f			del_pos;
+	mlx_texture_t	*img;
+	bool			enabled;
+}	t_entity;
+
 /**
  * @param texture Wall textures
  * @param pos Player position
@@ -95,6 +122,7 @@ typedef struct s_data
 	int				**map;
 	mlx_t			*mlx;
 	mlx_image_t		*win;
+	mlx_image_t		*win_entities;
 	float			dir;
 	float			dir_delta;
 	float			fov;
@@ -104,6 +132,8 @@ typedef struct s_data
 	uint32_t		col_ceiling;
 	uint32_t		win_wh;
 	t_door			door;
+	t_entity		*entity;
+	int32_t			num_entities;
 }	t_data;
 
 void	ft_rays(t_data *data);
