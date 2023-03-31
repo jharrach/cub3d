@@ -6,24 +6,29 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 20:50:42 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 22:46:38 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
 
-void	destroy_data(t_data *data, t_input *in, int ext, char *error)
+void ft_free2d(char **arr)
 {
 	int	i;
 
+	i = 0;
+	while (arr != NULL && arr[i] != NULL)
+		free(arr[i++]);
+	free(arr);
+}
+
+void	destroy_data(t_data *data, t_input *in, int ext, char *error)
+{
 	mlx_terminate(data->mlx);
 	free(data->ray_lenghts);
 	if (in->fd != -1)
 		close(in->fd);
-	i = 0;
-	while (in->input != NULL && in->input[i] != NULL)
-		free(in->input[i++]);
-	free(in->input);
+	ft_free2d(in->input);
 	if (error != NULL)
 		printf("Error\n%s\n", error);
 	if (ext == 1)
@@ -286,9 +291,9 @@ void	ft_hook(void *param)
 	get_mouse_input(data);
 	get_key_input(data);
 	draw_rectangle(data->win, 0, 0, \
-		data->win->width, data->win->height / 2, 0xFF00FF00);
+		data->win->width, data->win->height / 2, data->col_ceiling);
 	draw_rectangle(data->win, 0, data->win->height / 2, \
-		data->win->width, data->win->height / 2, 0xFFFF0000);
+		data->win->width, data->win->height / 2, data->col_floor);
 	ft_rays(data);
 	draw_entities(data);
 	move_door(data);
@@ -371,13 +376,13 @@ void	ft_keyhook(mlx_key_data_t keydata, void *param)
 	}
 }
 
-const char	*get_type(int i)
+const char	*get_ident(int i)
 {
-	const char	*types[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
+	const char	*texture[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
 
 	if (i < 0 || i > TEXTURE_CNT - 1)
 		return (NULL);
-	return (types[i]);
+	return (texture[i]);
 }
 
 t_input_types	get_input_type(char *line)
@@ -392,26 +397,36 @@ t_input_types	get_input_type(char *line)
 		return (NEWLINE); //Only windows
 	i = -1;
 	while (++i < TEXTURE_CNT)
-		if (!ft_strncmp(get_type(i), line, 2))
+		if (!ft_strncmp(get_ident(i), line, 2))
 			return (TEXTURE);
 	if (!ft_strncmp("F", line, 1) || !ft_strncmp("C", line, 1))
 		return (COLOR);
 	return (INVALID);
 }
 
-int	check_int(char *str)
+static int	check_ints(char **str)
 {
-	size_t	i;
+	int		i;
+	size_t	i2;
 
-	if ((ft_strlen(str) > 10) || *str == '\0')
-		return (1);
 	i = -1;
-	while (++i < ft_strlen(str))
-		if (str[i] < '0' || str[i] > '9' \
-			|| (str[i] > "2147483647"[i] && ft_strlen(str) > 9))
-			return (1);
-	i = ft_atoi(str);
-	return (i < 256);
+	if (str == NULL)
+		return (1);
+	while (str[++i] != NULL)
+	{
+		if ((ft_strlen(str[i]) > 3) || *str[i] == '\0')
+			return (ft_free2d(str), 1);
+		i2 = -1;
+		while (++i2 < ft_strlen(str[i]))
+			if (str[i][i2] < '0' || str[i][i2] > '9')
+				return (ft_free2d(str), 1);
+		i2 = ft_atoi(str[i]);
+		if (i2 > 255)
+			return (ft_free2d(str), 1);
+	}
+	if (i != 3)
+		return (ft_free2d(str), 1);
+	return (0);
 }
 
 int	cnt_spaces(char *str)
@@ -419,7 +434,7 @@ int	cnt_spaces(char *str)
 	int	i;
 
 	i = 0;
-	while (str[i] == ' ' && str[i] != '\n')
+	while (str[i] == ' ' && str[i] != '\n' && str[i] != '\0')
 		i++;
 	return (i);
 }
@@ -431,23 +446,47 @@ void	load_map(t_data *d, t_input *in)
 		in->i++;
 }
 
-int	load_colors(t_data *d, t_input *in)
+int	load_color(t_data *data, uint32_t *dest)
 {
-	(void)d;
-	while (*in->i != *in->input && get_input_type(*in->i) == NEWLINE)
-		in->i++;
-	if (get_input_type(*in->i) == COLOR
-		&& get_input_type(*(in->i + 1)) == COLOR)
-	{
-		printf("DEBUG TEST: Colors validated\n");
-		in->i += 2;
-	}
-	else
-		return (printf("Error\nInvalid or missing colors!\n"), 1);
+	int		i;
+	char	**values;
+
+	if ((*data->in.i)[ft_strlen(*data->in.i) - 1] == '\n')
+		(*data->in.i)[ft_strlen(*data->in.i) - 1] = 0;
+	if ((*data->in.i)[ft_strlen(*data->in.i) - 1] == '\r') //Only windows
+		(*data->in.i)[ft_strlen(*data->in.i) - 1] = 0; //Only windows
+	i = cnt_spaces(*data->in.i + 1) + 1;
+	values = ft_split(*data->in.i + i, ',');
+	printf("%p '%s' '%s' '%s'\n", values, values[0], values[1], values[2]);
+	if (check_ints(values))
+		return (printf("Error\nInvalid color format!\n"), 1);
+	*dest = 255 << 24 | ft_atoi(values[0]) << 16 \
+		| ft_atoi(values[1]) << 8 | ft_atoi(values[2]);
+	ft_free2d(values);
+	data->in.i++;
 	return (0);
 }
 
-int	load_textures(t_data *d, t_input *in)
+int	load_colors(t_data *data, t_input *in)
+{
+	while (*in->i != *in->input && get_input_type(*in->i) == NEWLINE)
+		in->i++;
+	if (*in->i == NULL || get_input_type(*in->i) != COLOR
+		|| get_input_type(*(in->i + 1)) != COLOR)
+		return (printf("Error\nMissing colors!\n"), 1);
+	if (!ft_strncmp("F", *in->i, 1))
+	{
+		if (load_color(data, &data->col_floor) \
+			|| load_color(data, &data->col_ceiling))
+			destroy_data(data, in, 1, NULL);
+	}
+	else if (load_color(data, &data->col_ceiling) \
+		|| load_color(data, &data->col_floor))
+		destroy_data(data, in, 1, NULL);
+	return (0);
+}
+
+int	load_textures(t_data *data, t_input *in)
 {
 	int	i;
 
@@ -456,20 +495,22 @@ int	load_textures(t_data *d, t_input *in)
 	while (get_input_type(*in->i) == TEXTURE)
 	{
 		i = 0;
-		while (i < TEXTURE_CNT && ft_strncmp(get_type(i), *in->i, 2))
+		while (i < TEXTURE_CNT && ft_strncmp(get_ident(i), *in->i, 2))
 			i++;
-		(*in->i)[ft_strlen(*in->i) - 1] = 0;
-		(*in->i)[ft_strlen(*in->i) - 1] = 0; //Only windows
-		if (d->texture[i] != NULL)
+		if ((*in->i)[ft_strlen(*in->i) - 1] == '\n')
+			(*in->i)[ft_strlen(*in->i) - 1] = 0;
+		if ((*in->i)[ft_strlen(*in->i) - 1] == '\r') //Only windows
+			(*in->i)[ft_strlen(*in->i) - 1] = 0; //Only windows
+		if (data->texture[i] != NULL)
 			return (printf("Error\nTexture duplicate input file!\n"), 1);
-		d->texture[i] = mlx_load_png(*in->i + cnt_spaces(*in->i + 2) + 2);
-		if (d->texture[i] == NULL)
+		data->texture[i] = mlx_load_png(*in->i + cnt_spaces(*in->i + 2) + 2);
+		if (data->texture[i] == NULL)
 			return (printf("Error\nTexture load fail!\n"), 1);
 		in->i++;
 	}
 	i = -1;
 	while (++i < TEXTURE_CNT)
-		if (d->texture[i] == NULL)
+		if (data->texture[i] == NULL)
 			return (printf("Error\nMissing textures!\n"), 1);
 	return (0);
 }
@@ -588,5 +629,5 @@ int	main(int argc, char **argv)
 	mlx_resize_hook(data.mlx, ft_resize_hook, &data);
 	mlx_loop(data.mlx);
 	destroy_data(&data, &data.in, 0, NULL);
-	return (printf("Exited!\n"), 0);
+	return (0);
 }
