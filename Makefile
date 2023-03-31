@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rburgsta <rburgsta@student.42heilbronn.    +#+  +:+       +#+         #
+#    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/20 17:09:09 by rburgsta         ###   ########.fr        #
+#    Updated: 2023/03/30 17:35:12 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ MLX42_DIR	= mlx42/
 MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
 
-SRC			= main
+SRC			= main ray ray_collision drawings
 OBJ			= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC)))
 
 MLX42		= $(MLX42_B_DIR)libmlx42.a
@@ -61,4 +61,10 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re objdir
+pfclean:
+	$(RM) -r $(OBJ_DIR)
+	$(RM) $(NAME)
+
+pre: pfclean all
+
+.PHONY: all clean fclean re objdir pfclean pre

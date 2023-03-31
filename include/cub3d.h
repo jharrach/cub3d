@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 02:15:22 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/03/31 14:11:29 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,6 @@ typedef enum e_input_types
 	COLOR
 }	t_input_types;
 
-typedef struct	s_vec2f
-{
-	float	x;
-	float	y;
-}	t_vec2f;
-
-typedef struct	s_vec2i
-{
-	int	x;
-	int	y;
-}	t_vec2i;
-
 /**
  * @param filename Path of the input file
  * @param fd File descriptor to the input file
@@ -61,6 +49,54 @@ typedef struct s_input
 	int		i;
 }	t_input;
 
+typedef struct s_vec2f
+{
+	float	x;
+	float	y;
+}	t_vec2f;
+
+typedef struct s_vec2i
+{
+	int	x;
+	int	y;
+}	t_vec2i;
+
+/**
+ * @param unit length per cell
+ * @param length horizontel and vertical lengths until next cell collision
+ * @param cell_pos
+ * @param cell_dir 1 when position increases, -1 when it decreases
+ * @param angle
+ * @param cos cosine of angle
+ * @param sin sine of angle
+ * @param len distence from start to collision
+ * @param hoz is true when ray hits colliding cell horizontally
+*/
+typedef struct s_ray
+{
+	t_vec2f	unit;
+	t_vec2f	length;
+	t_vec2i	cell_pos;
+	t_vec2i	cell_dir;
+	float	angle;
+	float	cos;
+	float	sin;
+	float	len;
+	bool	hoz;
+}	t_ray;
+
+/**
+ * @param cell position in map
+ * @param moved distance door moved already
+ * @param opens opens/closes
+*/
+typedef struct s_door
+{
+	t_vec2i	cell;
+	float	moved;
+	bool	opens;
+}	t_door;
+
 /**
  * @param texture Wall textures
  * @param pos Player position
@@ -74,23 +110,32 @@ typedef struct s_input
  * @param col_floor
  * @param col_ceiling
  * @param win_wh Half width of main image
+ * @param door
 **/
-typedef struct	s_data
+typedef struct s_data
 {
-	mlx_texture_t	*texture[TEXTURE_CNT];
-	t_vec2f		pos;
-	t_vec2i		map_size;
-	int			**map;
-	mlx_t		*mlx;
-	mlx_image_t	*win;
-	float		dir;
-	float		dir_delta;
-	float		fov;
-	float		dis;
-	float		*depth_buffer;
-	uint32_t	col[2];
-	uint32_t	win_wh;
-	mlx_image_t *prev_text;
+	mlx_texture_t	*texture[6];
+	t_vec2f			pos;
+	t_vec2i			map_size;
+	int				**map;
+	mlx_t			*mlx;
+	mlx_image_t		*win;
+	float			dir;
+	float			dir_delta;
+	float			fov;
+	float			dis;
+	float			*ray_lenghts;
+	uint32_t		col_floor;
+	uint32_t		col_ceiling;
+	uint32_t		win_wh;
+	t_door			door;
 }	t_data;
+
+void	ft_rays(t_data *data);
+void	wall_collision(t_ray *ray, t_data *data, int32_t i);
+bool	door_collision(t_ray *ray, t_data *data, int32_t i);
+void	draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
+int32_t	factor_pixel(int c, float f);
+void	txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
 
 #endif
