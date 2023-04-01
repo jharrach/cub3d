@@ -6,7 +6,7 @@
 #    By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/31 23:09:26 by rburgsta         ###   ########.fr        #
+#    Updated: 2023/04/01 17:56:17 by rburgsta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,11 +42,15 @@ all: $(NAME)
 optimized: pfclean
 	@$(MAKE) CFLAGS="-O3"
 
-$(NAME): $(OBJ)
+$(NAME): $(MLX42) $(LIBFT) $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
+
+$(MLX42) :
 	@cmake -S $(MLX42_DIR) -B $(MLX42_B_DIR) 2>&1 | sed -e 's/^/mlx42: /;'
 	@make -C $(MLX42_B_DIR) $(CMAKE_TRD) 2>&1 | sed -e 's/^/mlx42: /;'
+
+$(LIBFT) :
 	@make -C $(LIBFT_DIR)  2>&1 | sed -e 's/^/libft: /;'
-	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c | objdir
 	$(CC) $(CFLAGS) -c $< -o $@

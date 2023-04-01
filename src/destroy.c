@@ -12,13 +12,14 @@
 
 #include "../include/cub3d.h"
 
-void	destroy_data(t_data *data, t_input *in, bool ext, char *error)
+void	destroy_data(t_data *data, bool ext, char *error)
 {
 	mlx_terminate(data->mlx);
 	free(data->ray_lenghts);
-	if (in->fd != -1)
-		close(in->fd);
-	ft_free2d(in->input);
+	if (data->in.fd != -1)
+		close(data->in.fd);
+	ft_free2d(data->in.input);
+	ft_free2d((char **)data->map);
 	if (error != NULL)
 		printf("Error\n%s\n", error);
 	if (ext == true)

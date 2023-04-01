@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/01 15:17:25 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/04/01 17:53:27 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,12 @@ void	ft_fps(t_data *data, int32_t x, int32_t y)
 
 	str = ft_itoa(1.0 / data->mlx->delta_time);
 	if (!str)
-		destroy_data(data, &data->in, 1, "ft_fps itoa fail");
+		destroy_data(data, 1, "ft_fps itoa fail");
 	mlx_delete_image(data->mlx, img);
 	img = mlx_put_string(data->mlx, str, x, y);
 	free(str);
 	if (!img)
-		destroy_data(data, &data->in, 1, "ft_fps putstring fail");
+		destroy_data(data, 1, "ft_fps putstring fail");
 }
 
 void	init_recti_center_vec2f(t_recti *rect, t_vec2f center, float halfwidth)
@@ -378,14 +378,14 @@ int	main(int argc, char **argv)
 	mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
 	mlx_focus(data.mlx);
 	if (mlx_image_to_window(data.mlx, data.win, 0, 0) == -1)
-		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
+		destroy_data(&data, 1, "Failed to draw img to window");
 	if (mlx_image_to_window(data.mlx, data.win_entities, 0, 0) == -1)
-		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
+		destroy_data(&data, 1, "Failed to draw img to window");
 	mlx_loop_hook(data.mlx, ft_hook, &data);
 	mlx_scroll_hook(data.mlx, scroll, &data);
 	mlx_key_hook(data.mlx, ft_keyhook, &data);
 	mlx_resize_hook(data.mlx, ft_resize_hook, &data);
 	mlx_loop(data.mlx);
-	destroy_data(&data, &data.in, 0, NULL);
+	destroy_data(&data, 0, NULL);
 	return (0);
 }

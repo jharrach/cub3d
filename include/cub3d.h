@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/01 14:36:53 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/04/01 16:34:39 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ int				check_ints(char **str);
  * @param ext Whether it should exit
  * @param error An optional error message
 **/
-void			destroy_data(t_data *data, t_input *in, bool ext, char *error);
+void			destroy_data(t_data *data, bool ext, char *error);
 
 
 void			ft_rays(t_data *data);

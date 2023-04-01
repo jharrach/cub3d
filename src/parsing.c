@@ -51,11 +51,11 @@ static int	load_colors(t_data *data, t_input *in)
 	{
 		if (load_color(data, &data->col_floor) \
 			|| load_color(data, &data->col_ceiling))
-			destroy_data(data, in, 1, NULL);
+			destroy_data(data, 1, NULL);
 	}
 	else if (load_color(data, &data->col_ceiling) \
 		|| load_color(data, &data->col_floor))
-		destroy_data(data, in, 1, NULL);
+		destroy_data(data, 1, NULL);
 	return (0);
 }
 
@@ -118,13 +118,17 @@ static int	read_input(t_input *in)
 void	load_data(t_data *data, t_input *in)
 {
 	if (read_input(in) || in->input == NULL)
-		destroy_data(data, in, 1, "Failed reading input file!");
+		destroy_data(data, 1, "Failed reading input file!");
 	if (get_input_type(*in->i) == TEXTURE)
 	{
 		if (load_textures(data, in) || load_colors(data, in))
-			destroy_data(data, in, 1, NULL);
+			destroy_data(data, 1, NULL);
 	}
 	else if (load_colors(data, in) || load_textures(data, in))
-		destroy_data(data, in, 1, NULL);
+		destroy_data(data, 1, NULL);
+	while (*in->i != *in->input && get_input_type(*in->i) == NEWLINE)
+		in->i++;
+	if (*in->i == NULL)
+		destroy_data(data, 1, "No map found!");
 	load_map(data, in);
 }
