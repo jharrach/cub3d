@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:17:22 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/30 19:04:49 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/31 21:54:44 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void	ft_rays(t_data *data)
 	i = 0;
 	while (i < (int)data->win->width)
 	{
-		ray.angle = atanf((float)(i - (int)data->win_wh) / data->dis);
+		ray.angle = data->ray_angle[i];
 		ray.cos = cosf(data->dir + ray.angle);
 		ray.sin = sinf(data->dir + ray.angle);
 		ray.cell_pos.x = floorf(data->pos.x);

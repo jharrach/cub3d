@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 19:07:39 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/03/31 23:05:18 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ typedef struct s_entity
 	t_vec2f			del_pos;
 	mlx_texture_t	*img;
 	bool			enabled;
+	float			half_width;
 }	t_entity;
 
 /**
@@ -150,6 +151,7 @@ typedef struct s_data
 	float			fov;
 	float			dis;
 	float			*ray_lenghts;
+	float			*ray_angle;
 	uint32_t		col_floor;
 	uint32_t		col_ceiling;
 	uint32_t		win_wh;
@@ -165,5 +167,6 @@ bool	door_collision(t_ray *ray, t_data *data, int32_t i);
 void	draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
 int32_t	factor_pixel(int c, float f);
 void	txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
+bool	vec2i_in_range(t_vec2i v, t_vec2i max);
 
 #endif

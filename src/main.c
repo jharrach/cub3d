@@ -6,11 +6,23 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 19:25:46 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/01 15:35:56 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
+
+void	update_ray_angles(t_data *data)
+{
+	int32_t	i;
+
+	i = 0;
+	while (i < (int)data->win->width)
+	{
+		data->ray_angle[i] = atanf((float)(i - (int)data->win_wh) / data->dis);
+		i++;
+	}
+}
 
 void destroy_data(t_data *data, t_input *in, int ext, char *error)
 {
@@ -30,17 +42,46 @@ void destroy_data(t_data *data, t_input *in, int ext, char *error)
 		exit(1);
 }
 
+char	*ft_sitoa(int n, char *s)
+{
+	char	*p;
+	bool	neg;
+	unsigned int	n_cpy;
+
+	if (n < 0)
+	{
+		neg = true;
+		n_cpy = n * -1;
+	}
+	else
+	{
+		neg = false;
+		n_cpy = n;
+	}
+	p = s + 11;
+	*p = 0;
+	while (true)
+	{
+		*--p = n_cpy % 10 + '0';
+		n_cpy /= 10;
+		if (!n_cpy)
+			break ;
+	}
+	if (neg)
+		*--p = '-';
+	return (p);
+}
+
 void	ft_fps(t_data *data, int32_t x, int32_t y)
 {
 	static mlx_image_t	*img = NULL;
-	char				*str;
-
-	str = ft_itoa(1.0 / data->mlx->delta_time);
-	if (!str)
-		destroy_data(data, &data->in, 1, "ft_fps itoa fail");
+	static int			count;
+	char				s1[12];
+	if (count++ < 10)
+		return ;
+	count = 0;
 	mlx_delete_image(data->mlx, img);
-	img = mlx_put_string(data->mlx, str, x, y);
-	free(str);
+	img = mlx_put_string(data->mlx, ft_sitoa(1.0 / data->mlx->delta_time, s1), x, y);
 	if (!img)
 		destroy_data(data, &data->in, 1, "ft_fps putstring fail");
 }
@@ -187,9 +228,8 @@ void	update_entitiy_del_pos(t_data *data)
 	i = 0;
 	while (i < data->num_entities)
 	{
-		data->entity[i].del_pos = \
-			vec2f_sub(data->entity[i].pos, data->pos);
-		data->entity[i].del_pos.x *= -1;
+		data->entity[i].del_pos.x = data->pos.x - data->entity[i].pos.x;
+		data->entity[i].del_pos.y = data->entity[i].pos.y - data->pos.y;
 		data->entity[i].del_pos = \
 			rotate_vec2f(data->entity[i].del_pos, data->dir);
 		i++;
@@ -200,21 +240,22 @@ static void	draw_entity(t_entity *entity, t_data *data)
 {
 	t_vec2i	loc;
 	int32_t	j;
+	float	len;
 
 	loc.x = entity->del_pos.x * (data->dis / entity->del_pos.y);
 	loc.x += data->win_wh;
-	entity->del_pos.y = data->dis / entity->del_pos.y;
-	loc.x -= entity->del_pos.y / 2.0;
+	len = data->dis / entity->del_pos.y;
+	loc.x -= len / 2.0;
+	loc.y = ((int)data->win->height - len) / 2;
 	j = 0;
-	while (j < entity->del_pos.y)
+	while (j < len)
 	{
 		if (loc.x >= 0 && loc.x < (int)data->win->width && \
-			(entity->del_pos.y > data->ray_lenghts[loc.x] || \
+			(len > data->ray_lenghts[loc.x] || \
 				data->ray_lenghts[loc.x] == 0.0))
 		{
-			loc.y = ((int)data->win->height - entity->del_pos.y) / 2;
 			txt_to_img(data->win_entities, entity->img, \
-				loc, j / entity->del_pos.y);
+				loc, j / len);
 		}
 		loc.x++;
 		j++;
@@ -262,20 +303,81 @@ static t_vec2f	player_delta(mlx_t *mlx)
 	return (delta);
 }
 
+void	init_rectf_center_vec2f(t_rectf *rect, t_vec2f center, float halfwidth)
+{
+	rect->tr.x = center.x + halfwidth;
+	rect->tr.y = center.y + halfwidth;
+	rect->tl.x = center.x - halfwidth;
+	rect->tl.y = center.y + halfwidth;
+	rect->br.x = center.x + halfwidth;
+	rect->br.y = center.y - halfwidth;
+	rect->bl.x = center.x - halfwidth;
+	rect->bl.y = center.y - halfwidth;
+}
+
+bool	collide_entity(t_data *data)
+{
+	t_rectf	r1;
+	t_rectf	r2;
+	int32_t	i;
+
+	init_rectf_center_vec2f(&r1, data->pos, PLAYER_HALF_WIDTH);
+	i = -1;
+	while (i++ < data->num_entities)
+	{
+		if (data->entity[i].del_pos.x > 2.0 || data->entity[i].del_pos.y > 2.0 || \
+			data->entity[i].del_pos.x < -2.0 || data->entity[i].del_pos.y < -2.0 || \
+			!data->entity[i].enabled)
+			continue;
+		init_rectf_center_vec2f(&r2, data->entity[i].pos, data->entity[i].half_width);
+		if (data->entity[i].half_width > PLAYER_HALF_WIDTH)
+		{
+			if (r1.tr.x >= r2.tl.x && r1.tr.x <= r2.tr.x && \
+				r1.tr.y >= r2.bl.y && r1.tr.y <= r2.tl.y)
+				return (true);
+			if (r1.tl.x >= r2.tl.x && r1.tl.x <= r2.tr.x && \
+				r1.tl.y >= r2.bl.y && r1.tl.y <= r2.tl.y)
+				return (true);
+			if (r1.br.x >= r2.tl.x && r1.br.x <= r2.tr.x && \
+				r1.br.y >= r2.bl.y && r1.br.y <= r2.tl.y)
+				return (true);
+			if (r1.bl.x >= r2.tl.x && r1.bl.x <= r2.tr.x && \
+				r1.bl.y >= r2.bl.y && r1.bl.y <= r2.tl.y)
+				return (true);
+		}
+		else
+		{
+			if (r2.tr.x >= r1.tl.x && r2.tr.x <= r1.tr.x && \
+				r2.tr.y >= r1.bl.y && r2.tr.y <= r1.tl.y)
+				return (true);
+			if (r2.tl.x >= r1.tl.x && r2.tl.x <= r1.tr.x && \
+				r2.tl.y >= r1.bl.y && r2.tl.y <= r1.tl.y)
+				return (true);
+			if (r2.br.x >= r1.tl.x && r2.br.x <= r1.tr.x && \
+				r2.br.y >= r1.bl.y && r2.br.y <= r1.tl.y)
+				return (true);
+			if (r2.bl.x >= r1.tl.x && r2.bl.x <= r1.tr.x && \
+				r2.bl.y >= r1.bl.y && r2.bl.y <= r1.tl.y)
+				return (true);
+		}
+	}
+	return (false);
+}
+
 void	get_key_input(t_data *data)
 {
 	t_vec2f	delta;
 	t_recti	rect;
 
 	delta = rotate_vec2f(player_delta(data->mlx), data->dir);
-	init_recti_center_vec2f(&rect, \
-		(t_vec2f){data->pos.x + delta.x, data->pos.y}, PLAYER_HALF_WIDTH);
-	if (!recti_collide_map(&rect, data->map, data->map_size))
-		data->pos.x += delta.x;
-	init_recti_center_vec2f(&rect, \
-		(t_vec2f){data->pos.x, data->pos.y + delta.y}, PLAYER_HALF_WIDTH);
-	if (!recti_collide_map(&rect, data->map, data->map_size))
-		data->pos.y += delta.y;
+	data->pos.x += delta.x;
+	init_recti_center_vec2f(&rect, data->pos, PLAYER_HALF_WIDTH);
+	if (recti_collide_map(&rect, data->map, data->map_size) || collide_entity(data))
+		data->pos.x -= delta.x;
+	data->pos.y += delta.y;
+	init_recti_center_vec2f(&rect, data->pos, PLAYER_HALF_WIDTH);
+	if (recti_collide_map(&rect, data->map, data->map_size) || collide_entity(data))
+		data->pos.y -= delta.y;
 }
 
 void	ft_hook(void *param)
@@ -303,6 +405,7 @@ void	scroll(double xdelta, double ydelta, void *param)
 	if (data->fov < PI / 6.0 || data->fov > PI * 2.0 / 3.0)
 		data->fov -= ydelta * 0.01;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
+	update_ray_angles(data);
 }
 
 void	ft_resize_hook(int32_t width, int32_t height, void *param)
@@ -317,6 +420,9 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 	free(data->ray_lenghts);
 	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
+	free(data->ray_angle);
+	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);//error
+	update_ray_angles(data);
 }
 
 void	ft_keyhook(mlx_key_data_t keydata, void *param)
@@ -520,6 +626,7 @@ void	load_data(t_data *data, t_input *in)
 void	init_data(t_data *data, char *fn)
 {
 	data->ray_lenghts = NULL;
+	data->ray_angle = NULL;
 	ft_memset(data->texture, 0, sizeof(data->texture));
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){.x = -2.0f, .y = -2.0f};
@@ -545,15 +652,19 @@ void	init_data(t_data *data, char *fn)
 	data->dir_delta = 0.0 * PI / 180.0;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
+	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);//error
+	update_ray_angles(data);
 	load_data(data, &data->in);
 	data->num_entities = 2;
 	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
 	data->entity[0].pos = (t_vec2f){.x = -2.0, .y = -2.0};
 	data->entity[0].enabled = true;
 	data->entity[0].img = data->texture[5];
+	data->entity[0].half_width = 0.5;
 	data->entity[1].pos = (t_vec2f){.x = -2.0, .y = -4.0};
 	data->entity[1].enabled = true;
 	data->entity[1].img = data->texture[5];
+	data->entity[1].half_width = 0.1;
 }
 
 int	main(int argc, char **argv)
