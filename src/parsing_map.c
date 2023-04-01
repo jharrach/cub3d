@@ -15,6 +15,7 @@
 static int	set_map_size(t_data *data, t_input *in)
 {
 	int		i;
+	size_t	i2;
 	size_t	stop;
 	size_t	start;
 
@@ -31,11 +32,14 @@ static int	set_map_size(t_data *data, t_input *in)
 			in->i[i][ft_strlen(in->i[i]) - 1] = 0; // Only windows
 		if (start > (size_t)cnt_spaces(in->i[i]))
 			start = cnt_spaces(in->i[i]);
-		if (stop < ft_strlen(in->i[i]))
-			stop = ft_strlen(in->i[i]);
+		i2 = ft_strlen(in->i[i]) - 1;
+		while (i2 > 0 && in->i[i][i2] == ' ')
+			i2--;
+		if (stop < i2 + 1)
+			stop = i2 + 1;
 	}
 	data->map_size = (t_vec2i){i, stop - start};
-	printf("%i %i\n", data->map_size.x, data->map_size.y);
+	printf("DEBUG: Found map size: %i %i\n", data->map_size.x, data->map_size.y); // Debug
 	return (start);
 }
 
@@ -55,19 +59,19 @@ void	allocate_map_arr(t_data *data)
 	}
 }
 
-void	set_player_data(t_data *data, char c, int y, int x)
+void	set_player_data(t_data *data, char c, int x, int y)
 {
 	int	i;
 
 	if (data->pos.x == -1)
 	{
-		printf("%i %i\n", y ,x);
+		printf("DEBUG: Player cell loc: %i %i\n", x ,y); // Debug
 		data->pos = (t_vec2f){x + 0.5, y + 0.5};
 		i = -1;
 		while (++i < 4)
 			if (c == "NESW"[i])
 				data->dir = i * PI / 2;
-		printf("%f %f %f\n", data->pos.x ,data->pos.y, data->dir / (PI / 180));
+		printf("DEBUG: Player start: %f %f %f\n", data->pos.x ,data->pos.y, data->dir / (PI / 180)); // Debug
 	}
 	else
 		destroy_data(data, 1, "Multiple players in map!");
@@ -81,26 +85,29 @@ void	load_map(t_data *data, t_input *in)
 
 	start = set_map_size(data, in);
 	allocate_map_arr(data);
-	y = -1;
-	data->pos = (t_vec2f){-1, -1};
-	while (++y < data->map_size.x)
+	x = -1;
+	while (++x < data->map_size.x)
 	{
-		x = start - 1;
-		while (++x < data->map_size.y + start)
+		y = start - 1;
+		while (++y < data->map_size.y + start)
 		{
-			if (x >= (int)ft_strlen(in->i[y]) || in->i[y][x] == ' ')
-				data->map[y][x - start] = 0;
-			else if (ft_strchr(" 0123NSEW", in->i[y][x]) == NULL)
+			if (y >= (int)ft_strlen(in->i[x]) || in->i[x][y] == ' ')
+				data->map[x][y - start] = 0;
+			else if (ft_strchr(" 0123NSEW", in->i[x][y]) == NULL)
 				destroy_data(data, 1, "Invalid character(s) in map!");
-			else if (ft_strchr("NSEW", in->i[y][x]) != NULL)
-				set_player_data(data, in->i[y][x], y, x);
+			else if (ft_strchr("NSEW", in->i[x][y]) != NULL)
+				set_player_data(data, in->i[x][y], x, y);
 			else
-				data->map[y][x - start] = in->i[y][x] - '0';
+			{
+				if (in->i[x][y] == '3')
+					data->num_entities++;
+				data->map[x][y - start] = in->i[x][y] - '0';
+			}
 		}
 	}
-	// for (int y = 0; y < data->map_size.x; y++)
+	// for (int y = 0; y < data->map_size.x; y++) // Debug
 	// {
-	// 	for (int x = 0; x <  data->map_size.y; x++)
+	// 	for (int x = 0; x < data->map_size.y; x++)
 	// 	{
 	// 		printf("%i", data->map[y][x]);
 	// 	}

@@ -18,6 +18,7 @@ void	init_data(t_data *data, char *fn)
 	data->map = NULL;
 	ft_memset(data->texture, 0, sizeof(data->texture));
 	data->fov = FOV * PI / 180.0;
+	data->pos = (t_vec2f){-1, -1};
 	data->door.moved = -1.0;
 	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
 	if (data->mlx == NULL)
@@ -40,8 +41,8 @@ void	init_data(t_data *data, char *fn)
 	data->dir_delta = 0.0 * PI / 180.0;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	load_data(data, &data->in);
 	data->num_entities = 2;
+	load_data(data, &data->in);
 	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
 	data->entity[0].pos = (t_vec2f){.x = -2.0, .y = -2.0};
 	data->entity[0].enabled = true;
