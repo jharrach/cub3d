@@ -12,7 +12,7 @@
 
 #include "../include/cub3d.h"
 
-void ft_free2d(char **arr)
+void	ft_free2d(char **arr)
 {
 	int	i;
 
@@ -52,10 +52,10 @@ t_input_types	get_input_type(char *line)
 
 int	cnt_spaces(char *str)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
-	while (str[i] == ' ' && str[i] != '\n' && str[i] != '\0')
+	while (str[i] == ' ' && str[i] != '\0')
 		i++;
 	return (i);
 }
