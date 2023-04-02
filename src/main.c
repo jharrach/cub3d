@@ -6,7 +6,7 @@
 /*   By: rburgsta <rburgsta@student.42.de>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/01 17:53:27 by rburgsta         ###   ########.fr       */
+/*   Updated: 2023/04/02 16:02:06 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,7 +265,7 @@ void	ft_hook(void *param)
 	t_data *const	data = param;
 
 	ft_fps(data, 0, 0);
-	get_mouse_input(data);
+	//get_mouse_input(data);
 	get_key_input(data);
 	draw_rectangle(data->win, 0, 0, \
 		data->win->width, data->win->height / 2, data->col_ceiling);
@@ -357,19 +357,6 @@ int	main(int argc, char **argv)
 {
 	t_data	data;
 
-	// data.map_size.x = 10;
-	// data.map_size.y = 15;
-	// data.map = malloc(sizeof(*(data.map)) * data.map_size.x);
-	// data.map[0] = (int []){1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-	// data.map[1] = (int []){1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[2] = (int []){1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[3] = (int []){1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
-	// data.map[4] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[5] = (int []){1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[6] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
-	// data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	// data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
-	// data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
 	if (argc != 2)
 		return (printf("Error\nWrong number of arguments!\n"), 1);
 	data.in.fd = -1;

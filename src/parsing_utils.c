@@ -24,7 +24,7 @@ void	ft_free2d(char **arr)
 
 const char	*get_ident(int i)
 {
-	const char	*texture[TEXTURE_CNT] = {"NO", "SO", "WE", "EA", "DO", "NP"};
+	const char	*texture[TEXTURE_CNT] = {"NO", "SO", "EA", "WE", "DO", "NP"};
 
 	if (i < 0 || i > TEXTURE_CNT - 1)
 		return (NULL);
