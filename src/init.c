@@ -12,10 +12,38 @@
 
 #include "../include/cub3d.h"
 
+void	init_entities(t_data *data)
+{
+	int	y;
+	int	x;
+	int	i;
+
+	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
+	if (data->entity == NULL)
+		destroy_data(data, 1, "Failed to allocat entities!");
+	x = -1;
+	i = -1;
+	while (++x < data->map_size.x)
+	{
+		y = -1;
+		while (++y < data->map_size.y)
+		{
+			if (data->map[x][y] == 3)
+			{
+				data->entity[++i].pos = (t_vec2f){x + 0.5, y + 0.5};
+				data->entity[i].enabled = true;
+				data->entity[i].img = data->texture[5];
+				data->map[x][y] = 0;
+			}
+		}
+	}
+}
+
 void	init_data(t_data *data, char *fn)
 {
 	data->ray_lenghts = NULL;
 	data->map = NULL;
+	data->entity = NULL;
 	ft_memset(data->texture, 0, sizeof(data->texture));
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){-1, -1};
@@ -41,13 +69,7 @@ void	init_data(t_data *data, char *fn)
 	data->dir_delta = 0.0 * PI / 180.0;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	data->num_entities = 2;
+	data->num_entities = 0;
 	load_data(data, &data->in);
-	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
-	data->entity[0].pos = (t_vec2f){.x = -2.0, .y = -2.0};
-	data->entity[0].enabled = true;
-	data->entity[0].img = data->texture[5];
-	data->entity[1].pos = (t_vec2f){.x = -2.0, .y = -4.0};
-	data->entity[1].enabled = true;
-	data->entity[1].img = data->texture[5];
+	init_entities(data);
 }

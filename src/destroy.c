@@ -16,6 +16,7 @@ void	destroy_data(t_data *data, bool ext, char *error)
 {
 	mlx_terminate(data->mlx);
 	free(data->ray_lenghts);
+	free(data->entity);
 	if (data->in.fd != -1)
 		close(data->in.fd);
 	ft_free2d(data->in.input);
