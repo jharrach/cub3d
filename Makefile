@@ -5,10 +5,11 @@
 #                                                     +:+ +:+         +:+      #
 #    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/04/02 21:20:56 by jharrach         ###   ########.fr        #
+#    Created: Invalid date        by                   #+#    #+#              #
+#    Updated: 2023/04/02 23:00:18 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 NAME		= cub3D
 
@@ -18,7 +19,8 @@ MLX42_DIR	= mlx42/
 MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
 
-SRC			= main ray ray_collision drawings rectangle vector entity fps door key_input mouse_input hooks minimap
+SRC			= main ray ray_collision drawings init \
+			  parsing parsing_map parsing_utils destroy rectangle vector entity fps door key_input mouse_input hooks minimap
 OBJ			= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC)))
 
 MLX42		= $(MLX42_B_DIR)libmlx42.a
@@ -41,11 +43,15 @@ all: $(NAME)
 optimized: pfclean
 	@$(MAKE) CFLAGS="-O3"
 
-$(NAME): $(OBJ)
+$(NAME): $(MLX42) $(LIBFT) $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
+
+$(MLX42) :
 	@cmake -S $(MLX42_DIR) -B $(MLX42_B_DIR) 2>&1 | sed -e 's/^/mlx42: /;'
 	@make -C $(MLX42_B_DIR) $(CMAKE_TRD) 2>&1 | sed -e 's/^/mlx42: /;'
+
+$(LIBFT) :
 	@make -C $(LIBFT_DIR)  2>&1 | sed -e 's/^/libft: /;'
-	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c | objdir
 	$(CC) $(CFLAGS) -c $< -o $@

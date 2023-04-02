@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:30:56 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 21:14:23 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 23:10:43 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ static void	wall_collision(t_ray *ray, t_data *data, int32_t i)
 			(data->pos.x - ray->sin * ray->len));
 	else
 		txt_to_img(data->win, data->texture[3], (t_vec2i){i, j}, \
-			-(data->pos.y + ray->cos * ray->len));
+			-(data->pos.x - ray->sin * ray->len));
 }
 
 static void	ft_cmp_ray_lenghts(t_ray *ray)

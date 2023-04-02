@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:48:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 21:20:31 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 23:34:30 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@ void	ft_loop_hook(void *param)
 {
 	t_data *const	data = param;
 
-	ft_fps(data, 0, 0);
+	ft_fps(data);
 	get_mouse_input(data);
 	get_key_input(data);
-	draw_rectangle(data->win, 0, 0, \
-		data->win->width, data->win->height / 2, 0xFF00FF00);
-	draw_rectangle(data->win, 0, data->win->height / 2, \
-		data->win->width, data->win->height / 2, 0xFFFF0000);
+	draw_rectangle(data->win, (t_vec2i){0, 0}, \
+		(t_vec2i){data->win->width, data->win->height / 2}, 0xFF00FF00);
+	draw_rectangle(data->win, (t_vec2i){0, data->win->height / 2}, \
+		(t_vec2i){data->win->width, data->win->height / 2}, 0xFFFF0000);
 	ft_rays(data);
 	ft_entities(data);
 	ft_door(data);
@@ -46,11 +46,11 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 	t_data *const	data = param;
 
 	if (!mlx_resize_image(data->win, width, height))
-		destroy_data(data, NULL, true, "mlx_resize_image()");
+		destroy_data(data, true, "mlx_resize_image()");
 	if (!mlx_resize_image(data->win_entities, width, height))
-		destroy_data(data, NULL, true, "mlx_resize_image()");
+		destroy_data(data, true, "mlx_resize_image()");
 	if (!mlx_resize_image(data->mm_win, data->win->width / 8, data->win->width / 8))
-		destroy_data(data, NULL, true, "mlx_resize_image()");
+		destroy_data(data, true, "mlx_resize_image()");
 	data->mm_win_h.x = data->mm_win->width / 2;
 	data->mm_win_h.y = data->mm_win->height / 2;
 	data->win_wh = data->win->width / 2;
@@ -58,11 +58,11 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 	free(data->ray_lenghts);
 	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
 	if (!data->ray_lenghts)
-		destroy_data(data, NULL, true, "malloc()");
+		destroy_data(data, true, "malloc()");
 	free(data->ray_angle);
 	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
 	if (!data->ray_angle)
-		destroy_data(data, NULL, true, "malloc()");
+		destroy_data(data, true, "malloc()");
 	update_ray_angles(data);
 }
 

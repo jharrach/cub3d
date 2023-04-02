@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:35:39 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 02:28:27 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 23:34:05 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static char	*ft_sitoa(int n, char *s)
 	return (p);
 }
 
-void	ft_fps(t_data *data, int32_t x, int32_t y)
+void	ft_fps(t_data *data)
 {
 	static mlx_image_t	*img = NULL;
 	static int			count;
@@ -50,11 +50,9 @@ void	ft_fps(t_data *data, int32_t x, int32_t y)
 	if (count++ < 10)
 		return ;
 	count = 0;
-	(void)x;
-	(void)y;
 	mlx_delete_image(data->mlx, img);
 	img = mlx_put_string(data->mlx, \
 		ft_sitoa(1.0 / data->mlx->delta_time, s1), 0, data->mlx->height - 20);
 	if (!img)
-		destroy_data(data, &data->in, 1, "ft_fps putstring fail");
+		destroy_data(data, 1, "ft_fps putstring fail");
 }

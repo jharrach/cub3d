@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 21:20:52 by jharrach         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2023/04/02 23:34:13 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef CUB3D_H
 # define CUB3D_H
@@ -40,6 +41,7 @@ typedef enum e_input_types
 }	t_input_types;
 
 /**
+ * Input data for parsing
  * @param fd File descriptor to the input file
  * @param input The input data read from the file
  * @param i Pointer to next line next to processed
@@ -79,12 +81,6 @@ typedef struct s_recti
 	t_vec2i	bl;
 }	t_recti;
 
-typedef struct s_linef
-{
-	t_vec2f	a;
-	t_vec2f	b;
-}	t_linef;
-
 /**
  * @param unit length per cell
  * @param length horizontel and vertical lengths until next cell collision
@@ -120,6 +116,12 @@ typedef struct s_door
 	float	moved;
 	bool	opens;
 }	t_door;
+
+typedef struct s_linef
+{
+	t_vec2f	a;
+	t_vec2f	b;
+}	t_linef;
 
 typedef struct s_entity
 {
@@ -174,9 +176,41 @@ typedef struct s_data
 	mlx_image_t		*mm_txt;
 }	t_data;
 
+//init
+/**
+ * @param fn The path of the input file
+**/
+void			init_data(t_data *data, char *fn);
+
+//parsing
+void			load_data(t_data *data, t_input *in);
+
+//parsing_map
+void			load_map(t_data *d, t_input *in);
+
+//parsing_utils
+void			ft_free2d(char **arr);
+const char		*get_ident(int i);
+t_input_types	get_input_type(char *line);
+int				cnt_spaces(char *str);
+int				check_ints(char **str);
+
+//destroy
+/**
+ * @param int The input data
+ * @param ext Whether it should exit
+ * @param error An optional error message
+**/
+void			destroy_data(t_data *data, bool ext, char *error);
+
+void			ft_rays(t_data *data);
+void			draw_rectangle(mlx_image_t *img, t_vec2i start , t_vec2i size, int col);
+int32_t			factor_pixel(int c, float f);
+void			txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
+
 void	ft_entities(t_data *data);
 
-void	ft_fps(t_data *data, int32_t x, int32_t y);
+void	ft_fps(t_data *data);
 
 void	ft_door(t_data *data);
 void	ft_check_door(t_data *data);
@@ -196,10 +230,8 @@ void	draw_minimap(t_data *data);
 void	ft_rays(t_data *data);
 void	ft_cast_ray(t_ray *ray, t_data *data, int32_t i);
 void	update_ray_angles(t_data *data);
-void	draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
 int32_t	factor_pixel(int c, float f);
 void	txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
-void	destroy_data(t_data *data, t_input *in, int ext, char *error);
 void	init_recti_center_vec2f(t_recti *rect, t_vec2f center, float halfwidth);
 void	init_rectf_center_vec2f(t_rectf *rect, t_vec2f center, float halfwidth);
 bool	recti_collide_map(t_recti *rect, int **map, t_vec2i map_size);

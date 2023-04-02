@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 21:16:53 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 21:20:47 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 22:47:55 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static size_t ft_realloc_linebuffer(t_data *data, size_t size)
 	{
 		data->mini_map = malloc(sizeof(*(data->mini_map)) * size);
 		if (!data->mini_map)
-			destroy_data(data, NULL, true, "malloc()");
+			destroy_data(data, true, "malloc()");
 		return (size);
 	}
 	tmp = data->mini_map;
@@ -29,7 +29,7 @@ static size_t ft_realloc_linebuffer(t_data *data, size_t size)
 	ft_memcpy(data->mini_map, tmp, sizeof(*(data->mini_map)) * (size - LINEBUFFERSIZE));
 	free(tmp);
 	if (!data->mini_map)
-		destroy_data(data, NULL, true, "malloc()");
+		destroy_data(data, true, "malloc()");
 	return (size);
 }
 
