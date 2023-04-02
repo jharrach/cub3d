@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 14:29:48 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 23:05:18 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 21:20:52 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # define WIDTH 1440
 # define HEIGHT 810
 # define FOV 90.0f
+# define AIM_ZOOM 0.3
+# define LINEBUFFERSIZE 10
 # define PI 3.141592653589793
 # define SHIFT_MULTIPLIER 2.0
 # define CONTROL_MULTIPLIER 0.5
@@ -76,6 +78,12 @@ typedef struct s_recti
 	t_vec2i	br;
 	t_vec2i	bl;
 }	t_recti;
+
+typedef struct s_linef
+{
+	t_vec2f	a;
+	t_vec2f	b;
+}	t_linef;
 
 /**
  * @param unit length per cell
@@ -159,14 +167,46 @@ typedef struct s_data
 	t_entity		*entity;
 	int32_t			num_entities;
 	t_input			in;
+	t_linef			*mini_map;
+	int32_t			mm_size;
+	mlx_image_t		*mm_win;
+	t_vec2i			mm_win_h;
+	mlx_image_t		*mm_txt;
 }	t_data;
 
+void	ft_entities(t_data *data);
+
+void	ft_fps(t_data *data, int32_t x, int32_t y);
+
+void	ft_door(t_data *data);
+void	ft_check_door(t_data *data);
+
+void	get_key_input(t_data *data);
+void	get_mouse_input(t_data *data);
+
+void	ft_loop_hook(void *param);
+void	ft_scroll_hook(double xdelta, double ydelta, void *param);
+void	ft_resize_hook(int32_t width, int32_t height, void *param);
+void	ft_key_hook(mlx_key_data_t keydata, void *param);
+void	ft_mouse_hook(mouse_key_t button, action_t action, modifier_key_t mods, void *param);
+
+void	ft_create_minimap(t_data *data);
+void	draw_minimap(t_data *data);
+
 void	ft_rays(t_data *data);
-void	wall_collision(t_ray *ray, t_data *data, int32_t i);
-bool	door_collision(t_ray *ray, t_data *data, int32_t i);
+void	ft_cast_ray(t_ray *ray, t_data *data, int32_t i);
+void	update_ray_angles(t_data *data);
 void	draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
 int32_t	factor_pixel(int c, float f);
 void	txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
-bool	vec2i_in_range(t_vec2i v, t_vec2i max);
+void	destroy_data(t_data *data, t_input *in, int ext, char *error);
+void	init_recti_center_vec2f(t_recti *rect, t_vec2f center, float halfwidth);
+void	init_rectf_center_vec2f(t_rectf *rect, t_vec2f center, float halfwidth);
+bool	recti_collide_map(t_recti *rect, int **map, t_vec2i map_size);
+
+t_vec2f	vec2f_mul_f(t_vec2f v, float m);
+t_vec2f	vec2f_add(t_vec2f v1, t_vec2f v2);
+t_vec2f	vec2f_sub(t_vec2f v1, t_vec2f v2);
+t_vec2f	rotate_vec2f(t_vec2f v1, float angle);
 
 #endif

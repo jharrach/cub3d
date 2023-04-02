@@ -6,7 +6,7 @@
 #    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/20 14:53:36 by jharrach          #+#    #+#              #
-#    Updated: 2023/03/31 18:27:28 by jharrach         ###   ########.fr        #
+#    Updated: 2023/04/02 21:20:56 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ MLX42_DIR	= mlx42/
 MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
 
-SRC			= main ray ray_collision drawings
+SRC			= main ray ray_collision drawings rectangle vector entity fps door key_input mouse_input hooks minimap
 OBJ			= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC)))
 
 MLX42		= $(MLX42_B_DIR)libmlx42.a

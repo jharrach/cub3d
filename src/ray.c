@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:17:22 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/31 21:54:44 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 20:13:35 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,50 +40,15 @@ static void	ft_init_ray(t_ray *ray, t_data *data)
 	}
 }
 
-static void	ft_cmp_ray_lenghts(t_ray *ray)
+void	update_ray_angles(t_data *data)
 {
-	if (ray->sin != 0.0 && (ray->cos == 0.0 || ray->length.x < ray->length.y))
-	{
-		ray->len = ray->length.x;
-		ray->cell_pos.x += ray->cell_dir.x;
-		ray->length.x += ray->unit.x;
-		ray->hoz = true;
-	}
-	else
-	{
-		ray->len = ray->length.y;
-		ray->cell_pos.y += ray->cell_dir.y;
-		ray->length.y += ray->unit.y;
-		ray->hoz = false;
-	}
-}
+	int32_t	i;
 
-static void	ft_cast_ray(t_ray *ray, t_data *data, int32_t i)
-{
-	while (1)
+	i = 0;
+	while (i < (int)data->win->width)
 	{
-		ft_cmp_ray_lenghts(ray);
-		if (ray->len > 50.0)
-		{
-			data->ray_lenghts[i] = 0.0;
-			break ;
-		}
-		if (ray->len > 0.05 && \
-			ray->cell_pos.x >= 0 && ray->cell_pos.x < data->map_size.x && \
-			ray->cell_pos.y >= 0 && ray->cell_pos.y < data->map_size.y)
-		{
-			if (data->map[ray->cell_pos.x][ray->cell_pos.y] == 1)
-			{
-				wall_collision(ray, data, i);
-				return ;
-			}
-			else if (data->map[ray->cell_pos.x][ray->cell_pos.y] == 2 || \
-				data->map[ray->cell_pos.x][ray->cell_pos.y] == 3)
-			{
-				if (door_collision(ray, data, i))
-					return ;
-			}
-		}
+		data->ray_angle[i] = atanf((float)(i - (int)data->win_wh) / data->dis);
+		i++;
 	}
 }
 

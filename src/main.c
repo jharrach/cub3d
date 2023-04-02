@@ -6,23 +6,11 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:02:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/01 15:35:56 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 21:16:52 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
-
-void	update_ray_angles(t_data *data)
-{
-	int32_t	i;
-
-	i = 0;
-	while (i < (int)data->win->width)
-	{
-		data->ray_angle[i] = atanf((float)(i - (int)data->win_wh) / data->dis);
-		i++;
-	}
-}
 
 void destroy_data(t_data *data, t_input *in, int ext, char *error)
 {
@@ -40,441 +28,6 @@ void destroy_data(t_data *data, t_input *in, int ext, char *error)
 		printf("Error\n%s\n", error);
 	if (ext == 1)
 		exit(1);
-}
-
-char	*ft_sitoa(int n, char *s)
-{
-	char	*p;
-	bool	neg;
-	unsigned int	n_cpy;
-
-	if (n < 0)
-	{
-		neg = true;
-		n_cpy = n * -1;
-	}
-	else
-	{
-		neg = false;
-		n_cpy = n;
-	}
-	p = s + 11;
-	*p = 0;
-	while (true)
-	{
-		*--p = n_cpy % 10 + '0';
-		n_cpy /= 10;
-		if (!n_cpy)
-			break ;
-	}
-	if (neg)
-		*--p = '-';
-	return (p);
-}
-
-void	ft_fps(t_data *data, int32_t x, int32_t y)
-{
-	static mlx_image_t	*img = NULL;
-	static int			count;
-	char				s1[12];
-	if (count++ < 10)
-		return ;
-	count = 0;
-	mlx_delete_image(data->mlx, img);
-	img = mlx_put_string(data->mlx, ft_sitoa(1.0 / data->mlx->delta_time, s1), x, y);
-	if (!img)
-		destroy_data(data, &data->in, 1, "ft_fps putstring fail");
-}
-
-void	init_recti_center_vec2f(t_recti *rect, t_vec2f center, float halfwidth)
-{
-	rect->tr.x = floorf(center.x + halfwidth);
-	rect->tr.y = floorf(center.y + halfwidth);
-	rect->tl.x = floorf(center.x - halfwidth);
-	rect->tl.y = floorf(center.y + halfwidth);
-	rect->br.x = floorf(center.x + halfwidth);
-	rect->br.y = floorf(center.y - halfwidth);
-	rect->bl.x = floorf(center.x - halfwidth);
-	rect->bl.y = floorf(center.y - halfwidth);
-}
-
-bool	vec2i_in_range(t_vec2i v, t_vec2i max)
-{
-	if (v.x < 0 || v.x >= max.x)
-		return (false);
-	if (v.y < 0 || v.y >= max.y)
-		return (false);
-	return (true);
-}
-
-bool	recti_collide_map(t_recti *rect, int **map, t_vec2i map_size)
-{
-	if (vec2i_in_range(rect->tr, map_size) && map[rect->tr.x][rect->tr.y] > 0)
-		return (true);
-	if (vec2i_in_range(rect->tl, map_size) && map[rect->tl.x][rect->tl.y] > 0)
-		return (true);
-	if (vec2i_in_range(rect->br, map_size) && map[rect->br.x][rect->br.y] > 0)
-		return (true);
-	if (vec2i_in_range(rect->bl, map_size) && map[rect->bl.x][rect->bl.y] > 0)
-		return (true);
-	return (false);
-}
-
-t_vec2f	vec2f_mul_f(t_vec2f v, float m)
-{
-	v.x *= m;
-	v.y *= m;
-	return (v);
-}
-
-t_vec2f	vec2f_add(t_vec2f v1, t_vec2f v2)
-{
-	v1.x += v2.x;
-	v1.y += v2.y;
-	return (v1);
-}
-
-t_vec2f	vec2f_sub(t_vec2f v1, t_vec2f v2)
-{
-	v1.x -= v2.x;
-	v1.y -= v2.y;
-	return (v1);
-}
-
-void	move_door(t_data *data)
-{
-	if (data->door.moved >= 0.0)
-	{
-		if (data->door.opens)
-		{
-			data->door.moved += data->mlx->delta_time;
-			if (data->door.moved > 1.0)
-			{
-				data->door.moved = -1.0;
-				data->map[data->door.cell.x][data->door.cell.y] = -1;
-			}
-		}
-		else
-		{
-			data->door.moved -= data->mlx->delta_time;
-			if (data->door.moved < 0.0)
-			{
-				data->door.moved = -1.0;
-				data->map[data->door.cell.x][data->door.cell.y] = 2;
-			}
-		}
-	}
-}
-
-void	get_mouse_input(t_data *data)
-{
-	int32_t	x;
-	int32_t	y;
-
-	mlx_get_mouse_pos(data->mlx, &x, &y);
-	(void)y;
-	data->dir = data->dir_delta + x * 0.001;
-}
-
-t_vec2f	rotate_vec2f(t_vec2f v1, float angle)
-{
-	t_vec2f	v2;
-
-	v2.x = v1.x * cosf(angle) - v1.y * sinf(angle);
-	v2.y = v1.x * sinf(angle) + v1.y * cosf(angle);
-	return (v2);
-}
-
-static int	partition(t_entity *arr, int i, int end)
-{
-	int			pivotindex;
-	float		pivotvalue;
-	t_entity	tmp;
-
-	pivotindex = i;
-	pivotvalue = arr[end].del_pos.y;
-	while (i < end)
-	{
-		if (arr[i].del_pos.y > pivotvalue)
-		{
-			tmp = arr[i];
-			arr[i] = arr[pivotindex];
-			arr[pivotindex] = tmp;
-			pivotindex++;
-		}
-		i++;
-	}
-	tmp = arr[pivotindex];
-	arr[pivotindex] = arr[end];
-	arr[end] = tmp;
-	return (pivotindex);
-}
-
-void	quick_sort_entities(t_entity *arr, int start, int end)
-{
-	int	i;
-
-	if (start >= end)
-		return ;
-	i = partition(arr, start, end);
-	quick_sort_entities(arr, start, i - 1);
-	quick_sort_entities(arr, i + 1, end);
-}
-
-void	update_entitiy_del_pos(t_data *data)
-{
-	int32_t	i;
-
-	i = 0;
-	while (i < data->num_entities)
-	{
-		data->entity[i].del_pos.x = data->pos.x - data->entity[i].pos.x;
-		data->entity[i].del_pos.y = data->entity[i].pos.y - data->pos.y;
-		data->entity[i].del_pos = \
-			rotate_vec2f(data->entity[i].del_pos, data->dir);
-		i++;
-	}
-}
-
-static void	draw_entity(t_entity *entity, t_data *data)
-{
-	t_vec2i	loc;
-	int32_t	j;
-	float	len;
-
-	loc.x = entity->del_pos.x * (data->dis / entity->del_pos.y);
-	loc.x += data->win_wh;
-	len = data->dis / entity->del_pos.y;
-	loc.x -= len / 2.0;
-	loc.y = ((int)data->win->height - len) / 2;
-	j = 0;
-	while (j < len)
-	{
-		if (loc.x >= 0 && loc.x < (int)data->win->width && \
-			(len > data->ray_lenghts[loc.x] || \
-				data->ray_lenghts[loc.x] == 0.0))
-		{
-			txt_to_img(data->win_entities, entity->img, \
-				loc, j / len);
-		}
-		loc.x++;
-		j++;
-	}
-}
-
-void	draw_entities(t_data *data)
-{
-	int32_t	i;
-
-	update_entitiy_del_pos(data);
-	quick_sort_entities(data->entity, 0, data->num_entities - 1);
-	ft_memset(data->win_entities->pixels, 0, \
-		data->win->width * data->win->height * 4);
-	i = 0;
-	while (i < data->num_entities)
-	{
-		if (data->entity[i].enabled && data->entity[i].del_pos.y > 0.05)
-			draw_entity(&(data->entity[i]), data);
-		i++;
-	}
-}
-
-static t_vec2f	player_delta(mlx_t *mlx)
-{
-	t_vec2f	delta;
-
-	delta = (t_vec2f){.x = 0.0, .y = 0.0};
-	if (mlx_is_key_down(mlx, MLX_KEY_ESCAPE))
-		mlx_close_window(mlx);
-	if (mlx_is_key_down(mlx, MLX_KEY_W))
-		delta.y += mlx->delta_time;
-	if (mlx_is_key_down(mlx, MLX_KEY_S))
-		delta.y -= mlx->delta_time;
-	if (mlx_is_key_down(mlx, MLX_KEY_A))
-		delta.x += mlx->delta_time;
-	if (mlx_is_key_down(mlx, MLX_KEY_D))
-		delta.x -= mlx->delta_time;
-	if (delta.x && delta.y)
-		delta = vec2f_mul_f(delta, 0.70710678118f);
-	if (mlx_is_key_down(mlx, MLX_KEY_LEFT_SHIFT))
-		delta = vec2f_mul_f(delta, SHIFT_MULTIPLIER);
-	else if (mlx_is_key_down(mlx, MLX_KEY_LEFT_CONTROL))
-		delta = vec2f_mul_f(delta, CONTROL_MULTIPLIER);
-	return (delta);
-}
-
-void	init_rectf_center_vec2f(t_rectf *rect, t_vec2f center, float halfwidth)
-{
-	rect->tr.x = center.x + halfwidth;
-	rect->tr.y = center.y + halfwidth;
-	rect->tl.x = center.x - halfwidth;
-	rect->tl.y = center.y + halfwidth;
-	rect->br.x = center.x + halfwidth;
-	rect->br.y = center.y - halfwidth;
-	rect->bl.x = center.x - halfwidth;
-	rect->bl.y = center.y - halfwidth;
-}
-
-bool	collide_entity(t_data *data)
-{
-	t_rectf	r1;
-	t_rectf	r2;
-	int32_t	i;
-
-	init_rectf_center_vec2f(&r1, data->pos, PLAYER_HALF_WIDTH);
-	i = -1;
-	while (i++ < data->num_entities)
-	{
-		if (data->entity[i].del_pos.x > 2.0 || data->entity[i].del_pos.y > 2.0 || \
-			data->entity[i].del_pos.x < -2.0 || data->entity[i].del_pos.y < -2.0 || \
-			!data->entity[i].enabled)
-			continue;
-		init_rectf_center_vec2f(&r2, data->entity[i].pos, data->entity[i].half_width);
-		if (data->entity[i].half_width > PLAYER_HALF_WIDTH)
-		{
-			if (r1.tr.x >= r2.tl.x && r1.tr.x <= r2.tr.x && \
-				r1.tr.y >= r2.bl.y && r1.tr.y <= r2.tl.y)
-				return (true);
-			if (r1.tl.x >= r2.tl.x && r1.tl.x <= r2.tr.x && \
-				r1.tl.y >= r2.bl.y && r1.tl.y <= r2.tl.y)
-				return (true);
-			if (r1.br.x >= r2.tl.x && r1.br.x <= r2.tr.x && \
-				r1.br.y >= r2.bl.y && r1.br.y <= r2.tl.y)
-				return (true);
-			if (r1.bl.x >= r2.tl.x && r1.bl.x <= r2.tr.x && \
-				r1.bl.y >= r2.bl.y && r1.bl.y <= r2.tl.y)
-				return (true);
-		}
-		else
-		{
-			if (r2.tr.x >= r1.tl.x && r2.tr.x <= r1.tr.x && \
-				r2.tr.y >= r1.bl.y && r2.tr.y <= r1.tl.y)
-				return (true);
-			if (r2.tl.x >= r1.tl.x && r2.tl.x <= r1.tr.x && \
-				r2.tl.y >= r1.bl.y && r2.tl.y <= r1.tl.y)
-				return (true);
-			if (r2.br.x >= r1.tl.x && r2.br.x <= r1.tr.x && \
-				r2.br.y >= r1.bl.y && r2.br.y <= r1.tl.y)
-				return (true);
-			if (r2.bl.x >= r1.tl.x && r2.bl.x <= r1.tr.x && \
-				r2.bl.y >= r1.bl.y && r2.bl.y <= r1.tl.y)
-				return (true);
-		}
-	}
-	return (false);
-}
-
-void	get_key_input(t_data *data)
-{
-	t_vec2f	delta;
-	t_recti	rect;
-
-	delta = rotate_vec2f(player_delta(data->mlx), data->dir);
-	data->pos.x += delta.x;
-	init_recti_center_vec2f(&rect, data->pos, PLAYER_HALF_WIDTH);
-	if (recti_collide_map(&rect, data->map, data->map_size) || collide_entity(data))
-		data->pos.x -= delta.x;
-	data->pos.y += delta.y;
-	init_recti_center_vec2f(&rect, data->pos, PLAYER_HALF_WIDTH);
-	if (recti_collide_map(&rect, data->map, data->map_size) || collide_entity(data))
-		data->pos.y -= delta.y;
-}
-
-void	ft_hook(void *param)
-{
-	t_data *const	data = param;
-
-	ft_fps(data, 0, 0);
-	get_mouse_input(data);
-	get_key_input(data);
-	draw_rectangle(data->win, 0, 0, \
-		data->win->width, data->win->height / 2, 0xFF00FF00);
-	draw_rectangle(data->win, 0, data->win->height / 2, \
-		data->win->width, data->win->height / 2, 0xFFFF0000);
-	ft_rays(data);
-	draw_entities(data);
-	move_door(data);
-}
-
-void	scroll(double xdelta, double ydelta, void *param)
-{
-	t_data *const	data = param;
-
-	(void)(xdelta);
-	data->fov += ydelta * 0.01;
-	if (data->fov < PI / 6.0 || data->fov > PI * 2.0 / 3.0)
-		data->fov -= ydelta * 0.01;
-	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	update_ray_angles(data);
-}
-
-void	ft_resize_hook(int32_t width, int32_t height, void *param)
-{
-	t_data *const	data = param;
-
-	if (!mlx_resize_image(data->win, width, height))
-		printf("error\n");
-	if (!mlx_resize_image(data->win_entities, width, height))
-		printf("error\n");
-	data->win_wh = data->win->width / 2;
-	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	free(data->ray_lenghts);
-	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
-	free(data->ray_angle);
-	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);//error
-	update_ray_angles(data);
-}
-
-void	ft_keyhook(mlx_key_data_t keydata, void *param)
-{
-	t_data *const	data = param;
-	static int		mode;
-	t_vec2i			next_cell;
-	t_recti			rect;
-
-	if (keydata.key == MLX_KEY_Q && keydata.action == MLX_RELEASE)
-	{
-		mode = !mode;
-		if (mode)
-			mlx_set_cursor_mode(data->mlx, MLX_MOUSE_NORMAL);
-		else
-		{
-			mlx_set_cursor_mode(data->mlx, MLX_MOUSE_DISABLED);
-			mlx_focus(data->mlx);
-		}
-	}
-	if (keydata.key == MLX_KEY_F && keydata.action == MLX_RELEASE)
-	{
-		next_cell.x = floorf(data->pos.x - sinf(data->dir));
-		next_cell.y = floorf(data->pos.y + cosf(data->dir));
-		if (vec2i_in_range(next_cell, data->map_size))
-		{
-			if (data->map[next_cell.x][next_cell.y] == 3)
-				data->door.opens = !data->door.opens;
-			else if (data->door.moved >= 0.0)
-				return ;
-			else if (data->map[next_cell.x][next_cell.y] == 2)
-			{
-				data->map[next_cell.x][next_cell.y] = 3;
-				data->door.cell = next_cell;
-				data->door.moved = 0.0;
-				data->door.opens = true;
-			}
-			else if (data->map[next_cell.x][next_cell.y] == -1)
-			{
-				data->map[next_cell.x][next_cell.y] = 3;
-				init_recti_center_vec2f(&rect, data->pos, 0.25);
-				if (recti_collide_map(&rect, data->map, data->map_size))
-				{
-					data->map[next_cell.x][next_cell.y] = -1;
-					return ;
-				}
-				data->door.cell = next_cell;
-				data->door.moved = 1.0;
-				data->door.opens = false;
-			}
-		}
-	}
 }
 
 const char*	get_type(int i)
@@ -629,7 +182,7 @@ void	init_data(t_data *data, char *fn)
 	data->ray_angle = NULL;
 	ft_memset(data->texture, 0, sizeof(data->texture));
 	data->fov = FOV * PI / 180.0;
-	data->pos = (t_vec2f){.x = -2.0f, .y = -2.0f};
+	data->pos = (t_vec2f){.x = 2.0f, .y = 4.0f};
 	data->door.moved = -1.0;
 	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
 	if (data->mlx == NULL)
@@ -639,12 +192,21 @@ void	init_data(t_data *data, char *fn)
 	data->in.fd = open(fn, O_RDONLY);
 	if (data->in.fd == -1)
 		destroy_data(data, &data->in, 1, "Failed to open input file!");
-	mlx_set_window_limit(data->mlx, 160, 90, __INT_MAX__, __INT_MAX__);
+	mlx_set_window_limit(data->mlx, 320, 180, __INT_MAX__, __INT_MAX__);
 	data->win = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
 	if (data->win == NULL)
 		destroy_data(data, &data->in, 1, "Failed to create MLX image!");
 	data->win_entities = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
 	if (data->win_entities == NULL)
+		destroy_data(data, &data->in, 1, "Failed to create MLX image!");
+	data->mm_win = mlx_new_image(data->mlx, 200, 200);
+	data->mm_win_h.x = data->mm_win->width / 2;
+	data->mm_win_h.y = data->mm_win->height / 2;
+	mlx_texture_t	*txt = mlx_load_png("textures/minimap.png");
+	if (!txt)
+		exit(42);
+	data->mm_txt = mlx_texture_to_image(data->mlx, txt);
+	if (data->mm_txt == NULL)
 		destroy_data(data, &data->in, 1, "Failed to create MLX image!");
 	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
 	if (data->ray_lenghts == NULL)
@@ -671,19 +233,24 @@ int	main(int argc, char **argv)
 {
 	t_data	data;
 
-	data.map_size.x = 10;
+	data.map_size.x = 15;
 	data.map_size.y = 15;
 	data.map = malloc(sizeof(*(data.map)) * data.map_size.x);
-	data.map[0] = (int []){1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-	data.map[1] = (int []){1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[2] = (int []){1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[3] = (int []){1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1};
-	data.map[4] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[5] = (int []){1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[6] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
-	data.map[7] = (int []){1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-	data.map[8] = (int []){1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1};
-	data.map[9] = (int []){1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
+	data.map[0]  = (int []){1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[1]  = (int []){0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0};
+	data.map[2]  = (int []){0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[3]  = (int []){0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0};
+	data.map[4]  = (int []){0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[5]  = (int []){0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[6]  = (int []){0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[7]  = (int []){0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[8]  = (int []){0, 0, 0, 1, 1, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0};
+	data.map[9]  = (int []){0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[10] = (int []){0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[11] = (int []){0, 0, 0, 1, 1, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0};
+	data.map[12] = (int []){0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+	data.map[13] = (int []){0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0};
+	data.map[14] = (int []){0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
 	if (argc != 2)
 		return (printf("Error\nWrong number of arguments!\n"), 1);
 	data.in.fd = -1;
@@ -695,10 +262,16 @@ int	main(int argc, char **argv)
 		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
 	if (mlx_image_to_window(data.mlx, data.win_entities, 0, 0) == -1)
 		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
-	mlx_loop_hook(data.mlx, ft_hook, &data);
-	mlx_scroll_hook(data.mlx, scroll, &data);
-	mlx_key_hook(data.mlx, ft_keyhook, &data);
+	if (mlx_image_to_window(data.mlx, data.mm_win, 0, 0) == -1)
+		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
+	if (mlx_image_to_window(data.mlx, data.mm_txt, 0, 0) == -1)
+		destroy_data(&data, &data.in, 1, "Failed to draw img to window");
+	mlx_loop_hook(data.mlx, ft_loop_hook, &data);
+	// mlx_scroll_hook(data.mlx, ft_scroll_hook, &data);
+	mlx_key_hook(data.mlx, ft_key_hook, &data);
 	mlx_resize_hook(data.mlx, ft_resize_hook, &data);
+	mlx_mouse_hook(data.mlx, ft_mouse_hook, &data);
+	ft_create_minimap(&data);
 	mlx_loop(data.mlx);
 	destroy_data(&data, &data.in, 0, NULL);
 	return (printf("Exited!\n"), 0);

@@ -6,16 +6,11 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:30:56 by jharrach          #+#    #+#             */
-/*   Updated: 2023/03/30 19:45:26 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 21:14:23 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
-
-// void	moving_door(t_ray *ray, t_data *data, int32_t i)
-// {
-
-// }
 
 static bool	draw_door(t_data *data, float texture_x, int32_t cell, int32_t i)
 {
@@ -34,7 +29,7 @@ static bool	draw_door(t_data *data, float texture_x, int32_t cell, int32_t i)
 	return (true);
 }
 
-bool	door_collision(t_ray *ray, t_data *data, int32_t i)
+static bool	door_collision(t_ray *ray, t_data *data, int32_t i)
 {
 	float	len;
 	float	texture_x;
@@ -57,7 +52,7 @@ bool	door_collision(t_ray *ray, t_data *data, int32_t i)
 		data->map[ray->cell_pos.x][ray->cell_pos.y], i));
 }
 
-void	wall_collision(t_ray *ray, t_data *data, int32_t i)
+static void	wall_collision(t_ray *ray, t_data *data, int32_t i)
 {
 	int	j;
 
@@ -74,5 +69,52 @@ void	wall_collision(t_ray *ray, t_data *data, int32_t i)
 			(data->pos.x - ray->sin * ray->len));
 	else
 		txt_to_img(data->win, data->texture[3], (t_vec2i){i, j}, \
-			-(data->pos.x - ray->sin * ray->len));
+			-(data->pos.y + ray->cos * ray->len));
+}
+
+static void	ft_cmp_ray_lenghts(t_ray *ray)
+{
+	if (ray->sin != 0.0 && (ray->cos == 0.0 || ray->length.x < ray->length.y))
+	{
+		ray->len = ray->length.x;
+		ray->cell_pos.x += ray->cell_dir.x;
+		ray->length.x += ray->unit.x;
+		ray->hoz = true;
+	}
+	else
+	{
+		ray->len = ray->length.y;
+		ray->cell_pos.y += ray->cell_dir.y;
+		ray->length.y += ray->unit.y;
+		ray->hoz = false;
+	}
+}
+
+void	ft_cast_ray(t_ray *ray, t_data *data, int32_t i)
+{
+	while (1)
+	{
+		ft_cmp_ray_lenghts(ray);
+		if (ray->len > 50.0)
+		{
+			data->ray_lenghts[i] = 0.0;
+			break ;
+		}
+		if (ray->len > 0.05 && \
+			ray->cell_pos.x >= 0 && ray->cell_pos.x < data->map_size.x && \
+			ray->cell_pos.y >= 0 && ray->cell_pos.y < data->map_size.y)
+		{
+			if (data->map[ray->cell_pos.x][ray->cell_pos.y] == 1)
+			{
+				wall_collision(ray, data, i);
+				return ;
+			}
+			else if (data->map[ray->cell_pos.x][ray->cell_pos.y] == 2 || \
+				data->map[ray->cell_pos.x][ray->cell_pos.y] == 3)
+			{
+				if (door_collision(ray, data, i))
+					return ;
+			}
+		}
+	}
 }
