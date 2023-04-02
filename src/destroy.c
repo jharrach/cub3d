@@ -14,7 +14,8 @@
 
 void	destroy_data(t_data *data, bool ext, char *error)
 {
-	mlx_terminate(data->mlx);
+	if (data->mlx != NULL)
+		mlx_terminate(data->mlx);
 	free(data->ray_lenghts);
 	free(data->entity);
 	if (data->in.fd != -1)
