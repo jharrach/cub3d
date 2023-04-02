@@ -267,10 +267,10 @@ void	ft_hook(void *param)
 	ft_fps(data, 0, 0);
 	get_mouse_input(data);
 	get_key_input(data);
-	draw_rectangle(data->win, 0, 0, \
-		data->win->width, data->win->height / 2, data->col_ceiling);
-	draw_rectangle(data->win, 0, data->win->height / 2, \
-		data->win->width, data->win->height / 2, data->col_floor);
+	draw_rectangle(data->win, (t_vec2i){0, 0}, \
+		(t_vec2i){data->win->width, data->win->height / 2}, data->col_ceiling);
+	draw_rectangle(data->win, (t_vec2i){0, data->win->height / 2}, \
+		(t_vec2i){data->win->width, data->win->height / 2}, data->col_floor);
 	ft_rays(data);
 	draw_entities(data);
 	move_door(data);

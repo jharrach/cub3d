@@ -190,7 +190,7 @@ void			destroy_data(t_data *data, bool ext, char *error);
 void			ft_rays(t_data *data);
 void			wall_collision(t_ray *ray, t_data *data, int32_t i);
 bool			door_collision(t_ray *ray, t_data *data, int32_t i);
-void			draw_rectangle(mlx_image_t *img, int x, int y, int w, int h, int col);
+void			draw_rectangle(mlx_image_t *img, t_vec2i start , t_vec2i size, int col);
 int32_t			factor_pixel(int c, float f);
 void			txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
 
