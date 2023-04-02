@@ -26,10 +26,6 @@ static int	set_map_size(t_data *data, t_input *in)
 	{
 		if (get_input_type(in->i[i]) == NEWLINE)
 			destroy_data(data, 1, "Newline in map!");
-		if (in->i[i][ft_strlen(in->i[i]) - 1] == '\n')
-			in->i[i][ft_strlen(in->i[i]) - 1] = 0;
-		if (in->i[i][ft_strlen(in->i[i]) - 1] == '\r') // Only windows
-			in->i[i][ft_strlen(in->i[i]) - 1] = 0; // Only windows
 		if (start > (size_t)cnt_spaces(in->i[i]))
 			start = cnt_spaces(in->i[i]);
 		i2 = ft_strlen(in->i[i]) - 1;
@@ -39,7 +35,6 @@ static int	set_map_size(t_data *data, t_input *in)
 			stop = i2 + 1;
 	}
 	data->map_size = (t_vec2i){i, stop - start};
-	printf("DEBUG: Found map size: %i %i\n", data->map_size.x, data->map_size.y); // Debug
 	return (start);
 }
 
@@ -47,7 +42,7 @@ static void	allocate_map_arr(t_data *data)
 {
 	int	i;
 
-	data->map = ft_calloc(data->map_size.x, sizeof(*(data->map)));
+	data->map = ft_calloc(data->map_size.x + 1, sizeof(*(data->map)));
 	if (data->map == NULL)
 		destroy_data(data, 1, "Failed to allocate map!");
 	i = -1;
@@ -65,20 +60,18 @@ static void	set_player_data(t_data *data, char c, int x, int y)
 
 	if (data->pos.x == -1)
 	{
-		printf("DEBUG: Player cell loc: %i %i\n", x ,y); // Debug
 		data->pos = (t_vec2f){x + 0.5, y + 0.5};
 		data->map[x][y] = 0;
 		i = -1;
 		while (++i < 4)
 			if (c == "ESWN"[i])
 				data->dir = i * PI / 2;
-		printf("DEBUG: Player start: %f %f %f\n", data->pos.x ,data->pos.y, data->dir / (PI / 180)); // Debug
 	}
 	else
 		destroy_data(data, 1, "Multiple players in map!");
 }
 
-void	load_map(t_data *data, _Inout_ t_input *in)
+void	load_map(t_data *data, t_input *in)
 {
 	int	x;
 	int	y;
@@ -97,12 +90,13 @@ void	load_map(t_data *data, _Inout_ t_input *in)
 			else if (ft_strchr(" 0123NSEW", in->i[x][y]) == NULL)
 				destroy_data(data, 1, "Invalid character(s) in map!");
 			else if (ft_strchr("NSEW", in->i[x][y]) != NULL)
-				set_player_data(data, in->i[x][y], data->map_size.x - x - 1, y - start);
+				set_player_data(data, in->i[x][y], \
+					data->map_size.x - x - 1, y - start);
 			else
 			{
-				if (in->i[x][y] == '3')
-					data->num_entities++;
-				data->map[data->map_size.x - x - 1][y - start] = in->i[x][y] - '0';
+				data->num_entities += (in->i[x][y] == '3');
+				data->map[data->map_size.x - x - 1][y - start] \
+					= in->i[x][y] - '0';
 			}
 		}
 	}

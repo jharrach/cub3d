@@ -265,7 +265,7 @@ void	ft_hook(void *param)
 	t_data *const	data = param;
 
 	ft_fps(data, 0, 0);
-	//get_mouse_input(data);
+	get_mouse_input(data);
 	get_key_input(data);
 	draw_rectangle(data->win, 0, 0, \
 		data->win->width, data->win->height / 2, data->col_ceiling);

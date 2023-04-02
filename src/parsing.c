@@ -18,10 +18,6 @@ static int	load_color(t_data *data, uint32_t *dest)
 	int		i2;
 	char	**values;
 
-	if ((*data->in.i)[ft_strlen(*data->in.i) - 1] == '\n')
-		(*data->in.i)[ft_strlen(*data->in.i) - 1] = 0;
-	if ((*data->in.i)[ft_strlen(*data->in.i) - 1] == '\r') //Only windows
-		(*data->in.i)[ft_strlen(*data->in.i) - 1] = 0; //Only windows
 	i = 0;
 	i2 = 0;
 	while ((*data->in.i)[i])
@@ -70,10 +66,6 @@ static int	load_textures(t_data *data, t_input *in)
 		i = 0;
 		while (i < TEXTURE_CNT && ft_strncmp(get_ident(i), *in->i, 2))
 			i++;
-		if ((*in->i)[ft_strlen(*in->i) - 1] == '\n')
-			(*in->i)[ft_strlen(*in->i) - 1] = 0;
-		if ((*in->i)[ft_strlen(*in->i) - 1] == '\r') //Only windows
-			(*in->i)[ft_strlen(*in->i) - 1] = 0; //Only windows
 		if (data->texture[i] != NULL)
 			return (printf("Error\nTexture duplicate input file!\n"), 1);
 		data->texture[i] = mlx_load_png(*in->i + cnt_spaces(*in->i + 2) + 2);
@@ -88,7 +80,7 @@ static int	load_textures(t_data *data, t_input *in)
 	return (0);
 }
 
-static int	read_input(t_input *in)
+static void	read_input(t_data *data, t_input *in)
 {
 	char	*ret;
 	int		i;
@@ -100,7 +92,7 @@ static int	read_input(t_input *in)
 	{
 		in->i = malloc((i + 1) * sizeof(char *));
 		if (in->i == NULL)
-			return (1);
+			destroy_data(data, 1, "Failed reading input file!");
 		i2 = -1;
 		while (++i2 < i - 1)
 			in->i[i2] = in->input[i2];
@@ -111,14 +103,17 @@ static int	read_input(t_input *in)
 			free(in->input);
 		in->input = in->i;
 		ret = get_next_line(in->fd);
+		if (ret != NULL && ft_strlen(ret) > 0 \
+			&& ret[ft_strlen(ret) - 1] == '\n')
+			ret[ft_strlen(ret) - 1] = 0;
+		if (ret != NULL && ft_strlen(ret) > 0 && ret[ft_strlen(ret) - 1] == '\r') //Only windows
+			ret[ft_strlen(ret) - 1] = 0; //Only windows
 	}
-	return (0);
 }
 
 void	load_data(t_data *data, t_input *in)
 {
-	if (read_input(in) || in->input == NULL)
-		destroy_data(data, 1, "Failed reading input file!");
+	read_input(data, in);
 	if (get_input_type(*in->i) == TEXTURE)
 	{
 		if (load_textures(data, in) || load_colors(data, in))

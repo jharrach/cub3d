@@ -37,10 +37,8 @@ t_input_types	get_input_type(char *line)
 
 	if (line == NULL)
 		return (INVALID);
-	if (ft_strlen(line) == 1 && *line == '\n')
+	if (ft_strlen(line) == 0)
 		return (NEWLINE);
-	else if (ft_strlen(line) == 2 && *line == '\r' && line[1] == '\n') //Only windows
-		return (NEWLINE); //Only windows
 	i = -1;
 	while (++i < TEXTURE_CNT)
 		if (!ft_strncmp(get_ident(i), line, 2))
