@@ -89,69 +89,98 @@ static int **debug_allocate_map(t_data *data)
 	return (ret);
 }
 
-void take_step(int **map, t_vec2i *loc, int x, int y)
+t_vec2i	vec2i_add(t_vec2i v1, t_vec2i v2)
 {
-	loc->x += x;
-	loc->y += y;
-	map[loc->x][loc->y] = 1;
+	return ((t_vec2i){v1.x + v2.x, v1.y + v2.y});
+}
+
+void rotate_dir(t_vec2i *loc, int i)
+{
+	if (loc->x == -1 && loc->y < 1)
+		loc->y++;
+	else if (loc->y == 1 && loc->x < 1)
+		loc->x++;
+	else if (loc->x == 1 && loc->y > -1)
+		loc->y--;
+	else
+		loc->x--;
+	if (--i > 0)
+		rotate_dir(loc, i);
 }
 
 static void validate_map(t_data *data)
 {
 	int		**map;
 	t_vec2i	i;
+	t_vec2i dir;
+	t_vec2i temp;
 	t_vec2i start;
+	int		max = 0;
 
 	i.x = -1;
 	map = debug_allocate_map(data);
 	while (++i.x < data->map_size.x)
-		ft_memset(map[i.x], ' ' - '0', data->map_size.y * sizeof(int));
+		ft_memset(map[i.x], 0, data->map_size.y * sizeof(int));
 	i = (t_vec2i){0, 0};
 	while (i.y < data->map_size.y && data->map[i.x][i.y] != 1)
-	{
-		map[i.x][i.y] = '#' - '0';
 		i.y++;
-	}
 	if (i.y >= data->map_size.y)
 		destroy_data(data, 1, "Invalid map!");
-	map[i.x][i.y] = 2;
+	map[i.x][i.y] = 1;
 	start = i;
+	dir = (t_vec2i){-1, -1};
+	int arr_border_touched[4] = {1, 0, 0, 0};
 	while (true)
 	{
-		if (i.x > 0 && data->map[i.x - 1][i.y] == 1 && map[i.x - 1][i.y] != 1)
-			take_step(map, &i, -1, 0);
-		else if (i.y + 1 < data->map_size.y && i.x > 0 && data->map[i.x - 1][i.y + 1] == 1 && map[i.x - 1][i.y + 1] != 1)
-			take_step(map, &i, -1, 1);
-		else if (i.y + 1 < data->map_size.y && data->map[i.x][i.y + 1] == 1 && map[i.x][i.y + 1] != 1)
-			take_step(map, &i, 0, 1);
-		else if (i.y + 1 < data->map_size.y && i.x + 1 < data->map_size.x && data->map[i.x + 1][i.y + 1] == 1 && map[i.x + 1][i.y + 1] != 1)
-			take_step(map, &i, 1, 1);
-		else if (i.x + 1 < data->map_size.x && data->map[i.x + 1][i.y] == 1 && map[i.x + 1][i.y] != 1)
-			take_step(map, &i, 1, 0);
-		else if (i.x + 1 < data->map_size.x && i.y > 0 && data->map[i.x + 1][i.y - 1] == 1 && map[i.x + 1][i.y - 1] != 1)
-			take_step(map, &i, 1, -1);
-		else if (i.y > 0 && data->map[i.x][i.y - 1] == 1 && map[i.x][i.y - 1] != 1)
-			take_step(map, &i, 0, -1);
-		else if (i.y > 0 && i.x > 0 && data->map[i.x - 1][i.y - 1] == 1 && map[i.x - 1][i.y - 1] != 1)
-			take_step(map, &i, -1, -1);
+		temp = vec2i_add(i, dir);
+		if (temp.x >= 0 && temp.y >= 0 && temp.x < data->map_size.x \
+			&& temp.y < data->map_size.y && data->map[temp.x][temp.y] == 1)
+		{
+			max = 0;
+			i = temp;
+			map[i.x][i.y]++;
+			if (i.y == data->map_size.y - 1)
+				arr_border_touched[1] = 1;
+			if (i.x == data->map_size.x - 1)
+				arr_border_touched[2] = 1;
+			if (i.y == 0)
+				arr_border_touched[3] = 1;
+			rotate_dir(&dir, 5);
+			if (i.x == start.x && i.y == start.y)
+			{
+				if (arr_border_touched[0] + arr_border_touched[1] + arr_border_touched[2] + arr_border_touched[3] == 4)
+					printf("Test success map valid as of now!\n");
+				else
+					printf("Test success and map invalid\n");
+				break;
+			}
+		}
 		else
 		{
-			printf("Fail\n");
-			break ;
+			if (max == 8)
+			{
+				printf("Test success and map invalid\n");
+				break ;
+			}
+			rotate_dir(&dir, 1);
+			max++;
 		}
-		if (start.x == i.x && start.y == i.y)
+		if (i.x == temp.x && i.y == temp.y)
 		{
-			printf("Success\n");
-			break ;
-		}
-		printf("\n");
-		for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
-		{
-			for (int x = 0; x < data->map_size.y; x++)
-				printf("%c", map[y][x] + '0');
 			printf("\n");
+			for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
+			{
+				for (int x = 0; x < data->map_size.y; x++)
+				{
+					if (map[y][x] == 0)
+						printf(" ");
+					else
+						printf("%c", map[y][x] + '0');
+				}
+				printf("\n");
+			}
 		}
-		usleep(50000); // Debug sleep
+		usleep(10000); // Debug sleep
 	}
 }
 
@@ -183,12 +212,12 @@ void	load_map(t_data *data, t_input *in)
 			}
 		}
 	}
-	for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
-	{
-		for (int x = 0; x < data->map_size.y; x++)
-			printf("%i", data->map[y][x]);
-		printf("\n");
-	}
+	// for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
+	// {
+	// 	for (int x = 0; x < data->map_size.y; x++)
+	// 		printf("%i", data->map[y][x]);
+	// 	printf("\n");
+	// }
 	if (data->pos.x == -1)
 		destroy_data(data, 1, "No player in map!");
 	validate_map(data);

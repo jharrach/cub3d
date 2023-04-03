@@ -18,7 +18,7 @@
             "type": "cppdbg",
             "request": "launch",
 			"program": "${workspaceFolder}/debug/cub3D",
-            "args": ["./own_test.cub"],
+            "args": ["./test.cub"],
             "cwd": "${workspaceFolder}",
 			"environment": [],
             "externalConsole": false,
