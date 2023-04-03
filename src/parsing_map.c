@@ -71,43 +71,120 @@ static void	set_player_data(t_data *data, char c, int x, int y)
 		destroy_data(data, 1, "Multiple players in map!");
 }
 
+static int **debug_allocate_map(t_data *data)
+{
+	int	i;
+	int **ret;
+
+	ret = ft_calloc(data->map_size.x + 1, sizeof(*(data->map)));
+	if (data->map == NULL)
+		destroy_data(data, 1, "Failed to allocate map!");
+	i = -1;
+	while (++i < data->map_size.x)
+	{
+		ret[i] = malloc(sizeof(int) * data->map_size.y);
+		if (data->map[i] == NULL)
+			destroy_data(data, 1, "Failed to allocate map!");
+	}
+	return (ret);
+}
+
+void take_step(int **map, t_vec2i *loc, int x, int y)
+{
+	loc->x += x;
+	loc->y += y;
+	map[loc->x][loc->y] = 1;
+}
+
+static void validate_map(t_data *data)
+{
+	int		**map;
+	t_vec2i	i;
+
+	i.x = -1;
+	map = debug_allocate_map(data);
+	while (++i.x < data->map_size.x)
+		ft_memset(map[i.x], ' ' - '0', data->map_size.y * sizeof(int));
+	i = (t_vec2i){0, 0};
+	while (i.y < data->map_size.y && data->map[i.x][i.y] != 1)
+	{
+		map[i.x][i.y] = '#' - '0';
+		i.y++;
+	}
+	if (i.y >= data->map_size.y)
+		destroy_data(data, 1, "Invalid map!");
+	map[i.x][i.y] = 1;
+	while (i.y < data->map_size.y - 1)
+	{
+		if (i.x > 0 && data->map[i.x - 1][i.y] == 1 && map[i.x - 1][i.y] != 1)
+			take_step(map, &i, -1, 0);
+		else if (i.y + 1 < data->map_size.y && i.x > 0 && data->map[i.x - 1][i.y + 1] == 1 && map[i.x - 1][i.y + 1] != 1)
+			take_step(map, &i, -1, 1);
+		else if (i.y + 1 < data->map_size.y && data->map[i.x][i.y + 1] == 1 && map[i.x][i.y + 1] != 1)
+			take_step(map, &i, 0, 1);
+		else if (i.y + 1 < data->map_size.y && i.x + 1 < data->map_size.x && data->map[i.x + 1][i.y + 1] == 1 && map[i.x + 1][i.y + 1] != 1)
+			take_step(map, &i, 1, 1);
+		else if (i.x + 1 < data->map_size.x && data->map[i.x + 1][i.y] == 1 && map[i.x + 1][i.y] != 1)
+			take_step(map, &i, 1, 0);
+		else if (i.x + 1 < data->map_size.x && i.y > 0 && data->map[i.x + 1][i.y - 1] == 1 && map[i.x + 1][i.y - 1] != 1)
+			take_step(map, &i, 1, -1);
+		else if (i.y > 0 && data->map[i.x][i.y - 1] == 1 && map[i.x][i.y - 1] != 1)
+			take_step(map, &i, 0, -1);
+		else if (i.y > 0 && i.x > 0 && data->map[i.x - 1][i.y - 1] == 1 && map[i.x - 1][i.y - 1] != 1)
+			take_step(map, &i, -1, -1);
+		printf("\n");
+		for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
+		{
+			for (int x = 0; x < data->map_size.y; x++)
+				printf("%c", map[y][x] + '0');
+			printf("\n");
+		}
+		usleep(100000); // Debug sleep
+	}
+	printf("\n");
+	for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
+	{
+		for (int x = 0; x < data->map_size.y; x++)
+			printf("%c", map[y][x] + '0');
+		printf("\n");
+	}
+}
+
 void	load_map(t_data *data, t_input *in)
 {
-	int	x;
-	int	y;
-	int	start;
+	t_vec2i i;
+	int		start;
 
 	start = set_map_size(data, in);
 	allocate_map_arr(data);
-	x = -1;
-	while (++x < data->map_size.x)
+	i.x = -1;
+	while (++i.x < data->map_size.x)
 	{
-		y = start - 1;
-		while (++y < data->map_size.y + start)
+		i.y = start - 1;
+		while (++i.y < data->map_size.y + start)
 		{
-			if (y >= (int)ft_strlen(in->i[x]) || in->i[x][y] == ' ')
-				data->map[data->map_size.x - x - 1][y - start] = 0;
-			else if (ft_strchr(" 0123NSEW", in->i[x][y]) == NULL)
+			if (i.y >= (int)ft_strlen(in->i[i.x]) || in->i[i.x][i.y] == ' ')
+				data->map[data->map_size.x - i.x - 1][i.y - start] = 0;
+			else if (ft_strchr(" 0123NSEW", in->i[i.x][i.y]) == NULL)
 				destroy_data(data, 1, "Invalid character(s) in map!");
-			else if (ft_strchr("NSEW", in->i[x][y]) != NULL)
-				set_player_data(data, in->i[x][y], \
-					data->map_size.x - x - 1, y - start);
+			else if (ft_strchr("NSEW", in->i[i.x][i.y]) != NULL)
+				set_player_data(data, in->i[i.x][i.y], \
+					data->map_size.x - i.x - 1, i.y - start);
 			else
 			{
-				data->num_entities += (in->i[x][y] == '3');
-				data->map[data->map_size.x - x - 1][y - start] \
-					= in->i[x][y] - '0';
+				data->num_entities += (in->i[i.x][i.y] == '3');
+				data->map[data->map_size.x - i.x - 1][i.y - start] \
+					= in->i[i.x][i.y] - '0';
 			}
 		}
 	}
-	// for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
-	// {
-	// 	for (int x = 0; x < data->map_size.y; x++)
-	// 	{
-	// 		printf("%i", data->map[y][x]);
-	// 	}
-	// 	printf("\n");
-	// }
+	for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
+	{
+		for (int x = 0; x < data->map_size.y; x++)
+			printf("%i", data->map[y][x]);
+		printf("\n");
+	}
 	if (data->pos.x == -1)
 		destroy_data(data, 1, "No player in map!");
+	validate_map(data);
 }
