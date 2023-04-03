@@ -3,3 +3,4 @@ cub3D
 *.a
 *.out
 .*
+!.vscode

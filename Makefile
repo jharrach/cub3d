@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
+#    By: rburgsta <rburgsta@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: Invalid date        by                   #+#    #+#              #
-#    Updated: 2023/04/02 23:00:18 by jharrach         ###   ########.fr        #
+#    Updated: 2023/04/03 17:17:11 by rburgsta         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,7 @@ NAME		= cub3D
 
 OBJ_DIR		= obj/
 SRC_DIR		= src/
+DBG_DIR		= debug/
 MLX42_DIR	= mlx42/
 MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
@@ -43,6 +44,9 @@ all: $(NAME)
 optimized: pfclean
 	@$(MAKE) CFLAGS="-O3"
 
+debug:
+	@$(MAKE) CFLAGS="$(CFLAGS) -g" OBJ_DIR="$(DBG_DIR)" NAME="$(DBG_DIR)$(NAME)"
+
 $(NAME): $(MLX42) $(LIBFT) $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
 
@@ -61,6 +65,7 @@ objdir:
 
 clean:
 	$(RM) -r $(OBJ_DIR)
+	$(RM) -r $(DBG_DIR)
 	$(RM) -r $(LIBFT_DIR)obj
 	$(RM) -r $(MLX42_B_DIR)
 
@@ -72,8 +77,9 @@ re: fclean all
 
 pfclean:
 	$(RM) -r $(OBJ_DIR)
+	$(RM) -r $(DBG_DIR)
 	$(RM) $(NAME)
 
 pre: pfclean all
 
-.PHONY: all clean fclean re objdir pfclean pre
+.PHONY: all clean fclean re objdir pfclean pre debug

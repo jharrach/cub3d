@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "(lldb) Debug MAC",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/debug/cub3D",
+			"args": ["./own_test.cub"],
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "lldb",
+			"preLaunchTask": "make debug"
+		}
+	  ]
+}

@@ -114,7 +114,7 @@ static void validate_map(t_data *data)
 	if (i.y >= data->map_size.y)
 		destroy_data(data, 1, "Invalid map!");
 	map[i.x][i.y] = 1;
-	while (i.y < data->map_size.y - 1)
+	while (true)
 	{
 		if (i.x > 0 && data->map[i.x - 1][i.y] == 1 && map[i.x - 1][i.y] != 1)
 			take_step(map, &i, -1, 0);
@@ -132,6 +132,8 @@ static void validate_map(t_data *data)
 			take_step(map, &i, 0, -1);
 		else if (i.y > 0 && i.x > 0 && data->map[i.x - 1][i.y - 1] == 1 && map[i.x - 1][i.y - 1] != 1)
 			take_step(map, &i, -1, -1);
+		else
+			break ;
 		printf("\n");
 		for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
 		{
@@ -139,7 +141,7 @@ static void validate_map(t_data *data)
 				printf("%c", map[y][x] + '0');
 			printf("\n");
 		}
-		usleep(100000); // Debug sleep
+		usleep(50000); // Debug sleep
 	}
 	printf("\n");
 	for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
