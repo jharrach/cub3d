@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:47:51 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/01 16:47:59 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/03 14:46:06 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,5 @@ void	get_mouse_input(t_data *data)
 
 	mlx_get_mouse_pos(data->mlx, &x, &y);
 	(void)y;
-	data->dir = data->dir_delta + x * 0.001;
+	data->dir = data->dir_delta + x * MOUSE_MUL;
 }

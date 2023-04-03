@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/02 23:34:13 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/03 15:07:37 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,10 @@
 # include "../libft/include/libft.h"
 # include "../mlx42/include/MLX42/MLX42.h"
 
-# define WIDTH 1440
-# define HEIGHT 810
+# define WIDTH 2500
+# define HEIGHT 1500
 # define FOV 90.0f
+# define MOUSE_MUL 0.001
 # define AIM_ZOOM 0.3
 # define LINEBUFFERSIZE 10
 # define PI 3.141592653589793

@@ -6,7 +6,7 @@
 #    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: Invalid date        by                   #+#    #+#              #
-#    Updated: 2023/04/02 23:00:18 by jharrach         ###   ########.fr        #
+#    Updated: 2023/04/03 15:56:35 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,6 +42,9 @@ all: $(NAME)
 
 optimized: pfclean
 	@$(MAKE) CFLAGS="-O3"
+
+debug: pfclean
+	@$(MAKE) CFLAGS="$(CFLAGS) -g"
 
 $(NAME): $(MLX42) $(LIBFT) $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@

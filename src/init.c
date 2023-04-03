@@ -66,6 +66,8 @@ static void	init_mlx(t_data *data)
 
 void	init_data(t_data *data, char *fn)
 {
+	t_vec2i	mouse;
+
 	*data = (t_data){0};
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){-1, -1};
@@ -76,7 +78,8 @@ void	init_data(t_data *data, char *fn)
 	if (data->in.fd == -1)
 		destroy_data(data, 1, "Failed to open input file!");
 	init_mlx(data);
-	data->dir_delta = 0.0 * PI / 180.0;
+	mlx_get_mouse_pos(data->mlx, &mouse.x, &mouse.y);
+	data->dir_delta = mouse.x * -MOUSE_MUL;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
