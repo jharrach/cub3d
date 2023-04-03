@@ -18,6 +18,7 @@ static void	init_entities(t_data *data)
 	int	x;
 	int	i;
 
+	data->kills = 0;
 	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
 	if (data->entity == NULL)
 		destroy_data(data, 1, "Failed to allocate entities!");

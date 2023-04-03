@@ -1,12 +1,12 @@
-NO./textures/rdr2.png
-SO  ./textures/rdr22.png
-WE               ./textures/highres.png
-EA      ./textures/wood.png
+NO ./textures/some.png
+SO ./textures/some.png
+WE ./textures/some.png
+EA ./textures/some.png
 DO               ./textures/highres.png
 NP      ./textures/dice.png
 
-C   0,0,255
-F 0,255,0
+C 20,20,20
+F 100,100,100
 
             1111111111111111111111111
             1000000000110000000000001             

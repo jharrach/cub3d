@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:48:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 23:34:30 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/03 19:17:19 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,5 +107,14 @@ void	ft_mouse_hook(mouse_key_t button, action_t action, modifier_key_t mods, voi
 		}
 		data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 		update_ray_angles(data);
+	}
+	if (button == MLX_MOUSE_BUTTON_LEFT && action == MLX_PRESS)
+	{
+		if (data->center_ent != -1 && (mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_RIGHT) || rand() & 1))
+		{
+			data->entity[data->center_ent].enabled = false;
+			if (++data->kills == data->num_entities)
+				printf("finished\n");
+		}
 	}
 }

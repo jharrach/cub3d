@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/03 15:07:37 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/03 19:05:12 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,13 @@
 # include <stdio.h>
 # include <math.h>
 # include <stdbool.h>
+# include <stdlib.h>
 # include <fcntl.h>
 # include "../libft/include/libft.h"
 # include "../mlx42/include/MLX42/MLX42.h"
 
-# define WIDTH 2500
-# define HEIGHT 1500
+# define WIDTH 2000
+# define HEIGHT 1000
 # define FOV 90.0f
 # define MOUSE_MUL 0.001
 # define AIM_ZOOM 0.3
@@ -169,6 +170,8 @@ typedef struct s_data
 	t_door			door;
 	t_entity		*entity;
 	int32_t			num_entities;
+	int32_t			center_ent;
+	int32_t			kills;
 	t_input			in;
 	t_linef			*mini_map;
 	int32_t			mm_size;
