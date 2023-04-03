@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 21:16:53 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 22:47:55 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/03 00:18:39 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void	ft_create_minimap(t_data *data)
 					data->mini_map[data->mm_size].b.y = y + 0.5;
 					data->mm_size++;
 				}
-				if (x > 0 && data->map[x - 1][y] != 1 && x + 1 < data->map_size.y && data->map[x + 1][y] != 1)
+				if (x > 0 && data->map[x - 1][y] != 1 && x + 1 < data->map_size.x && data->map[x + 1][y] != 1)
 				{
 					if (data->mm_size >= size)
 						size =ft_realloc_linebuffer(data, size);

@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:30:56 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 23:10:43 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/02 23:54:43 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ static bool	draw_door(t_data *data, float texture_x, int32_t cell, int32_t i)
 	{
 		if (texture_x < data->door.moved)
 			return (false);
-		txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, \
+		txt_to_img(data->win, data->texture[4], (t_vec2i){i, j}, \
 			texture_x - data->door.moved);
 	}
 	else
-		txt_to_img(data->win, data->texture[1], (t_vec2i){i, j}, texture_x);
+		txt_to_img(data->win, data->texture[4], (t_vec2i){i, j}, texture_x);
 	return (true);
 }
 
