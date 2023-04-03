@@ -12,6 +12,19 @@
 			"externalConsole": false,
 			"MIMode": "lldb",
 			"preLaunchTask": "make debug"
-		}
+		},
+		{
+            "name": "(gdb) Debug WSL",
+            "type": "cppdbg",
+            "request": "launch",
+			"program": "${workspaceFolder}/debug/cub3D",
+            "args": ["./own_test.cub"],
+            "cwd": "${workspaceFolder}",
+			"environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+			"preLaunchTask": "make debug"
+        }
 	  ]
 }
