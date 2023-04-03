@@ -100,6 +100,7 @@ static void validate_map(t_data *data)
 {
 	int		**map;
 	t_vec2i	i;
+	t_vec2i start;
 
 	i.x = -1;
 	map = debug_allocate_map(data);
@@ -113,7 +114,8 @@ static void validate_map(t_data *data)
 	}
 	if (i.y >= data->map_size.y)
 		destroy_data(data, 1, "Invalid map!");
-	map[i.x][i.y] = 1;
+	map[i.x][i.y] = 2;
+	start = i;
 	while (true)
 	{
 		if (i.x > 0 && data->map[i.x - 1][i.y] == 1 && map[i.x - 1][i.y] != 1)
@@ -133,7 +135,15 @@ static void validate_map(t_data *data)
 		else if (i.y > 0 && i.x > 0 && data->map[i.x - 1][i.y - 1] == 1 && map[i.x - 1][i.y - 1] != 1)
 			take_step(map, &i, -1, -1);
 		else
+		{
+			printf("Fail\n");
 			break ;
+		}
+		if (start.x == i.x && start.y == i.y)
+		{
+			printf("Success\n");
+			break ;
+		}
 		printf("\n");
 		for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
 		{
@@ -142,13 +152,6 @@ static void validate_map(t_data *data)
 			printf("\n");
 		}
 		usleep(50000); // Debug sleep
-	}
-	printf("\n");
-	for (int y = data->map_size.x - 1; y >= 0; y--) // Debug
-	{
-		for (int x = 0; x < data->map_size.y; x++)
-			printf("%c", map[y][x] + '0');
-		printf("\n");
 	}
 }
 
