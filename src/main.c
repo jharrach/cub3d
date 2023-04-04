@@ -18,8 +18,6 @@ int	main(int argc, char **argv)
 
 	if (argc != 2)
 		return (printf("Error\nWrong number of arguments!\n"), 1);
-	data.in.fd = -1;
-	data.in.input = NULL;
 	init_data(&data, argv[1]);
 	mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
 	mlx_focus(data.mlx);
