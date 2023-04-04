@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rburgsta <rburgsta@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/02 23:34:13 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/04 12:44:26 by rburgsta         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,7 @@ typedef struct s_data
 	mlx_image_t		*mm_win;
 	t_vec2i			mm_win_h;
 	mlx_image_t		*mm_txt;
+	t_list			**head;
 }	t_data;
 
 //init
@@ -194,6 +195,10 @@ const char		*get_ident(int i);
 t_input_types	get_input_type(char *line);
 int				cnt_spaces(char *str);
 int				check_ints(char **str);
+
+void *ft_alloc(t_data *data, size_t count, size_t size);
+void *ft_alloc_add(t_data *data, void *content);
+void ft_free(t_data *data, void *content);
 
 //destroy
 /**

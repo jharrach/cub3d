@@ -21,7 +21,7 @@ MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
 
 SRC			= main ray ray_collision drawings init \
-			  parsing parsing_map parsing_utils destroy rectangle vector entity fps door key_input mouse_input hooks minimap
+			  parsing parsing_map parsing_utils destroy rectangle vector entity fps door key_input mouse_input hooks minimap memory
 OBJ			= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC)))
 
 MLX42		= $(MLX42_B_DIR)libmlx42.a

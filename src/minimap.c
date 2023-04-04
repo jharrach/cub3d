@@ -19,17 +19,13 @@ static size_t ft_realloc_linebuffer(t_data *data, size_t size)
 	size += LINEBUFFERSIZE;
 	if (!data->mini_map)
 	{
-		data->mini_map = malloc(sizeof(*(data->mini_map)) * size);
-		if (!data->mini_map)
-			destroy_data(data, true, "malloc()");
+		data->mini_map = ft_alloc(data, size, sizeof(*(data->mini_map)));
 		return (size);
 	}
 	tmp = data->mini_map;
-	data->mini_map = malloc(sizeof(*(data->mini_map)) * size);
+	data->mini_map = ft_alloc(data, size, sizeof(*(data->mini_map)));
 	ft_memcpy(data->mini_map, tmp, sizeof(*(data->mini_map)) * (size - LINEBUFFERSIZE));
-	free(tmp);
-	if (!data->mini_map)
-		destroy_data(data, true, "malloc()");
+	ft_free(data, tmp);
 	return (size);
 }
 

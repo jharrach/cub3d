@@ -18,9 +18,7 @@ static void	init_entities(t_data *data)
 	int	x;
 	int	i;
 
-	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
-	if (data->entity == NULL)
-		destroy_data(data, 1, "Failed to allocate entities!");
+	data->entity = ft_alloc(data, data->num_entities, sizeof(*(data->entity)));
 	x = -1;
 	i = -1;
 	while (++x < data->map_size.x)
@@ -79,10 +77,12 @@ void	init_data(t_data *data, char *fn)
 	data->dir_delta = 0.0 * PI / 180.0;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
-	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
-	if (data->ray_angle == NULL || data->ray_lenghts == NULL)
-		destroy_data(data, 1, "Failed to allocate angle buffer!");
+	// data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
+	// data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
+	// if (data->ray_angle == NULL || data->ray_lenghts == NULL)
+	// 	destroy_data(data, 1, "Failed to allocate angle buffer!");
+	data->ray_angle = ft_alloc(data, data->win->width, sizeof(*(data->ray_angle)));
+	data->ray_lenghts = ft_alloc(data, data->win->width, sizeof(*(data->ray_lenghts)));
 	update_ray_angles(data);//
 	load_data(data, &data->in);
 	init_entities(data);

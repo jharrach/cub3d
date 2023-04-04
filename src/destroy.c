@@ -16,12 +16,9 @@ void	destroy_data(t_data *data, bool ext, char *error)
 {
 	if (data->mlx != NULL)
 		mlx_terminate(data->mlx);
-	free(data->ray_lenghts);
-	free(data->entity);
 	if (data->in.fd != -1)
 		close(data->in.fd);
-	ft_free2d(data->in.input);
-	ft_free2d((char **)data->map);
+	ft_lstclear(data->head, &free);
 	if (error != NULL)
 		printf("Error\n%s\n", error);
 	if (ext == true)

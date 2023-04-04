@@ -42,16 +42,10 @@ static void	allocate_map_arr(t_data *data)
 {
 	int	i;
 
-	data->map = ft_calloc(data->map_size.x + 1, sizeof(*(data->map)));
-	if (data->map == NULL)
-		destroy_data(data, 1, "Failed to allocate map!");
+	data->map = ft_alloc(data, data->map_size.x + 1, sizeof(*(data->map)));
 	i = -1;
 	while (++i < data->map_size.x)
-	{
-		data->map[i] = malloc(sizeof(int) * data->map_size.y);
-		if (data->map[i] == NULL)
-			destroy_data(data, 1, "Failed to allocate map!");
-	}
+		data->map[i] = ft_alloc(data, data->map_size.y, sizeof(int));
 }
 
 static void	set_player_data(t_data *data, char c, int x, int y)
@@ -76,16 +70,10 @@ static int **debug_allocate_map(t_data *data)
 	int	i;
 	int **ret;
 
-	ret = ft_calloc(data->map_size.x + 1, sizeof(*(data->map)));
-	if (data->map == NULL)
-		destroy_data(data, 1, "Failed to allocate map!");
+	ret = ft_alloc(data, data->map_size.x + 1, sizeof(*(data->map)));
 	i = -1;
 	while (++i < data->map_size.x)
-	{
-		ret[i] = malloc(sizeof(int) * data->map_size.y);
-		if (data->map[i] == NULL)
-			destroy_data(data, 1, "Failed to allocate map!");
-	}
+		ret[i] = ft_alloc(data, data->map_size.y, sizeof(int));
 	return (ret);
 }
 

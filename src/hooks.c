@@ -55,14 +55,10 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 	data->mm_win_h.y = data->mm_win->height / 2;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	free(data->ray_lenghts);
-	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
-	if (!data->ray_lenghts)
-		destroy_data(data, true, "malloc()");
-	free(data->ray_angle);
-	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
-	if (!data->ray_angle)
-		destroy_data(data, true, "malloc()");
+	ft_free(data, data->ray_lenghts);
+	data->ray_lenghts = ft_alloc(data, data->win->width, sizeof(*(data->ray_lenghts)));
+	ft_free(data, data->ray_angle);
+	data->ray_angle = ft_alloc(data, data->win->width, sizeof(*(data->ray_angle)));
 	update_ray_angles(data);
 }
 
