@@ -26,7 +26,7 @@ void *ft_alloc(t_data *data, size_t count, size_t size)
 		free(content);
 		destroy_data(data, 1, "Failed to allocate new node!");
 	}
-	ft_lstadd_back(data->head, new);
+	ft_lstadd_back(&data->head, new);
 	return (content);
 }
 
@@ -42,7 +42,11 @@ void *ft_alloc_add(t_data *data, void *content)
 		free(content);
 		destroy_data(data, 1, "Failed to allocate new node!");
 	}
-	ft_lstadd_back(data->head, new);
+	ft_lstadd_back(&data->head, new);
+	if (data->head == NULL)
+	{
+		printf("well fuck\n");
+	}
 	return (content);
 }
 
@@ -55,7 +59,7 @@ void ft_free(t_data *data, void *content)
 		free (content);
 	else
 	{
-		current = *data->head;
+		current = data->head;
 		while (current != NULL && current->content != content)
 		{
 			prev = current;

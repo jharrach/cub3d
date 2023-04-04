@@ -168,7 +168,7 @@ static void validate_map(t_data *data)
 				printf("\n");
 			}
 		}
-		usleep(10000); // Debug sleep
+		//usleep(10000); // Debug sleep
 	}
 }
 

@@ -58,6 +58,7 @@ static void	init_mlx(t_data *data)
 	if (!txt)
 		exit(42);
 	data->mm_txt = mlx_texture_to_image(data->mlx, txt);
+	mlx_delete_texture(txt);
 	if (data->mm_txt == NULL)
 		destroy_data(data, 1, "Failed to create MLX image!");
 }
@@ -84,4 +85,6 @@ void	init_data(t_data *data, char *fn)
 	load_data(data, &data->in);
 	init_entities(data);
 	ft_create_minimap(data);
+	//Debug destroy
+		destroy_data(data, 1, "Debug destroy");
 }
