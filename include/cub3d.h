@@ -174,7 +174,7 @@ typedef struct s_data
 	mlx_image_t		*mm_win;
 	t_vec2i			mm_win_h;
 	mlx_image_t		*mm_txt;
-	t_list			**head;
+	t_list			*head;
 }	t_data;
 
 //init
