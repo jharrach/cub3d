@@ -44,7 +44,7 @@ all: $(NAME)
 optimized: pfclean
 	@$(MAKE) CFLAGS="-O3"
 
-debug:
+debug: $(MLX42) $(LIBFT)
 	@$(MAKE) CFLAGS="$(CFLAGS) -g" OBJ_DIR="$(DBG_DIR)" NAME="$(DBG_DIR)$(NAME)"
 
 $(NAME): $(MLX42) $(LIBFT) $(OBJ)
