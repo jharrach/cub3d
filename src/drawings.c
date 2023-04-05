@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 17:34:11 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/03 17:25:48 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/05 19:23:02 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,7 @@ void	txt_to_img(mlx_image_t *dst, mlx_texture_t *src, \
 	while (loc.y < draw_height && loc.y < (int)dst->height)
 	{
 		index = (int)src_loc.y * src->width + src_loc.x;
-		// if (((int *)src->pixels)[index])
-			((int *)dst->pixels)[loc.y * dst->width + loc.x] \
+		((int *)dst->pixels)[loc.y * dst->width + loc.x] \
 			= ((int *)src->pixels)[index];
 		src_loc.x += y_step;
 		loc.y++;

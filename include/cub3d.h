@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/04 20:43:23 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/05 19:29:59 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,9 @@
 # define SHIFT_MULTIPLIER 2.0
 # define CONTROL_MULTIPLIER 0.5
 # define PLAYER_HALF_WIDTH 0.25
-# define TEXTURE_CNT 6
+# define ENTITY_ANIMATION_MULTIPLIER 5.0
+# define ENTITY_TEXTURE_CNT 3
+# define TEXTURE_CNT 5 + ENTITY_TEXTURE_CNT
 
 typedef enum e_input_types
 {
@@ -129,9 +131,9 @@ typedef struct s_entity
 {
 	t_vec2f			pos;
 	t_vec2f			del_pos;
-	mlx_texture_t	*img;
 	bool			enabled;
 	float			half_width;
+	t_rectf			rect;
 }	t_entity;
 
 /**
@@ -171,16 +173,15 @@ typedef struct s_data
 	t_entity		*entity;
 	int32_t			num_entities;
 	int32_t			center_ent;
-	int32_t			kills;
 	t_input			in;
 	t_linef			*mini_map;
 	int32_t			mm_size;
 	mlx_image_t		*mm_win;
 	t_vec2i			mm_win_h;
+	float			mm_scale;
 	mlx_texture_t	*mm_txt;
 	mlx_image_t		*mm_img;
-	mlx_texture_t	*gun_txt;
-	mlx_image_t		*gun_img;
+	float			animation;
 }	t_data;
 
 //init

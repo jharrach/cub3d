@@ -6,13 +6,14 @@
 #    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: Invalid date        by                   #+#    #+#              #
-#    Updated: 2023/04/03 15:56:35 by jharrach         ###   ########.fr        #
+#    Updated: 2023/04/05 20:11:14 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME		= cub3D
 
+HEADER		= include/cub3d.h
 OBJ_DIR		= obj/
 SRC_DIR		= src/
 MLX42_DIR	= mlx42/
@@ -46,7 +47,7 @@ optimized: pfclean
 debug: pfclean
 	@$(MAKE) CFLAGS="$(CFLAGS) -g"
 
-$(NAME): $(MLX42) $(LIBFT) $(OBJ)
+$(NAME): $(HEADER) $(MLX42) $(LIBFT) $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(MLX42) $(LOADLIBES) -o $@
 
 $(MLX42) :
@@ -56,7 +57,7 @@ $(MLX42) :
 $(LIBFT) :
 	@make -C $(LIBFT_DIR)  2>&1 | sed -e 's/^/libft: /;'
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c | objdir
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(HEADER) | objdir
 	$(CC) $(CFLAGS) -c $< -o $@
 
 objdir:
@@ -79,4 +80,7 @@ pfclean:
 
 pre: pfclean all
 
-.PHONY: all clean fclean re objdir pfclean pre
+norm:
+	norminette $(SRC_DIR) $(HEADER) | less
+
+.PHONY: all clean fclean re objdir pfclean pre norm

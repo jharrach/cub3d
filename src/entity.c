@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/03 18:54:40 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/05 20:49:41 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,21 +48,6 @@ static void	quick_sort_entities(t_entity *arr, int start, int end)
 	quick_sort_entities(arr, i + 1, end);
 }
 
-static void	update_entity_del_pos(t_data *data)
-{
-	int32_t	i;
-
-	i = 0;
-	while (i < data->num_entities)
-	{
-		data->entity[i].del_pos.x = data->pos.x - data->entity[i].pos.x;
-		data->entity[i].del_pos.y = data->entity[i].pos.y - data->pos.y;
-		data->entity[i].del_pos = \
-			rotate_vec2f(data->entity[i].del_pos, data->dir);
-		i++;
-	}
-}
-
 void	txt_to_img2(mlx_image_t *dst, mlx_texture_t *src, \
 	t_vec2i loc, float x_hit)
 {
@@ -93,25 +78,28 @@ static void	draw_entity(t_data *data, int32_t i)
 {
 	t_vec2i		loc;
 	float const	len = data->dis / data->entity[i].del_pos.y;
-	float		j;
-	float		step = 1.0 / len;
+	t_vec2f		mapped;
 
-	loc.x = data->entity[i].del_pos.x * (data->dis / data->entity[i].del_pos.y);
-	loc.x += data->win_wh - len / 2.0;
+	loc.x = data->entity[i].del_pos.x * len + data->win_wh - len / 2.0;
 	loc.y = ((int)data->win->height - len) / 2;
-	j = 0.0;
-	while (j < 1.0)
+	mapped = (t_vec2f){.x = 0.0, .y = 1.0 / len};
+	while (mapped.x < 1.0)
 	{
 		if (loc.x >= 0 && loc.x < (int)data->win->width && \
 			(len > data->ray_lenghts[loc.x]))
 		{
-			txt_to_img2(data->win_entities, data->entity[i].img, \
-				loc, j);
+			if (data->entity[i].enabled)
+				txt_to_img2(data->win_entities, \
+					data->texture[5 + (int)data->animation], loc, mapped.x);
+			else
+				txt_to_img2(data->win_entities, \
+					data->texture[5], loc, mapped.x);
+			if (loc.x == (int)data->win_wh)
+				data->center_ent = i;
+			data->ray_lenghts[loc.x] = len;
 		}
-		if (loc.x == (int)data->win_wh)
-			data->center_ent = i;
 		loc.x++;
-		j += step;
+		mapped.x += mapped.y;
 	}
 }
 
@@ -119,7 +107,15 @@ void	ft_entities(t_data *data)
 {
 	int32_t	i;
 
-	update_entity_del_pos(data);
+	i = 0;
+	while (i < data->num_entities)
+	{
+		data->entity[i].del_pos.x = data->pos.x - data->entity[i].pos.x;
+		data->entity[i].del_pos.y = data->entity[i].pos.y - data->pos.y;
+		data->entity[i].del_pos = \
+			rotate_vec2f(data->entity[i].del_pos, data->dir);
+		i++;
+	}
 	quick_sort_entities(data->entity, 0, data->num_entities - 1);
 	ft_memset(data->win_entities->pixels, 0, \
 		data->win->width * data->win->height * 4);
@@ -127,8 +123,11 @@ void	ft_entities(t_data *data)
 	i = 0;
 	while (i < data->num_entities)
 	{
-		if (data->entity[i].enabled && data->entity[i].del_pos.y > 0.05)
+		if (data->entity[i].del_pos.y > 0.05)
 			draw_entity(data, i);
 		i++;
 	}
+	data->animation += data->mlx->delta_time * ENTITY_ANIMATION_MULTIPLIER;
+	if (data->animation >= ENTITY_TEXTURE_CNT)
+		data->animation = 0.0;
 }

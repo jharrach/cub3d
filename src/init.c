@@ -42,7 +42,6 @@ static void	init_entities(t_data *data)
 	int	x;
 	int	i;
 
-	data->kills = 0;
 	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
 	if (data->entity == NULL)
 		destroy_data(data, 1, "Failed to allocate entities!");
@@ -57,8 +56,8 @@ static void	init_entities(t_data *data)
 			{
 				data->entity[++i].pos = (t_vec2f){x + 0.5, y + 0.5};
 				data->entity[i].enabled = true;
-				data->entity[i].img = data->texture[5];
 				data->entity[i].half_width = texture_width(data->texture[5]);
+				init_rectf_center_vec2f(&(data->entity[i].rect), data->entity[i].pos, data->entity[i].half_width);
 				data->map[x][y] = 0;
 			}
 		}
@@ -72,7 +71,6 @@ void	scale_texture_to_img(mlx_texture_t *texture, mlx_image_t *image)
 	float const	w = (float)texture->width / (float)image->width;
 	float const	h = (float)texture->height / (float)image->height;
 
-	printf("%f\n", w);
 	i = 0;
 	while (i < image->height)
 	{
@@ -109,11 +107,6 @@ static void	init_mlx(t_data *data)
 	if (data->mm_img == NULL)
 		destroy_data(data, 1, "Failed to create MLX image!");
 	scale_texture_to_img(data->mm_txt, data->mm_img);
-	data->gun_txt = mlx_load_png("textures/gun1.png");
-	if (!data->gun_txt)
-		exit(42);
-	data->gun_img = mlx_new_image(data->mlx, (data->win->height / (3 * data->gun_txt->height)) * data->gun_txt->width, data->win->height / 3);
-	scale_texture_to_img(data->gun_txt, data->gun_img);
 }
 
 void	remove_transparency(uint8_t *pixels, uint32_t width, uint32_t height)
@@ -184,13 +177,14 @@ void	init_data(t_data *data, char *fn)
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
 	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
+	data->mm_scale = (float)data->win->width / 50.0;
 	if (data->ray_angle == NULL || data->ray_lenghts == NULL)
 		destroy_data(data, 1, "Failed to allocate angle buffer!");
 	update_ray_angles(data);//
 	load_data(data, &data->in);
 	remove_transparency(data->texture[5]->pixels, data->texture[5]->width, data->texture[5]->height);
-	init_entities(data);
 	for (int i = 0; i < TEXTURE_CNT; i++)
 		data->texture[i] = rotate_texture(data->texture[i]);
+	init_entities(data);
 	ft_create_minimap(data);
 }

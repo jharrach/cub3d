@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:35:39 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 23:34:05 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/05 20:47:30 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,15 @@
 
 static char	*ft_sitoa(int n, char *s)
 {
-	char	*p;
-	bool	neg;
+	char			*p;
+	bool			neg;
 	unsigned int	n_cpy;
 
-	if (n < 0)
-	{
-		neg = true;
+	neg = n < 0;
+	if (neg)
 		n_cpy = n * -1;
-	}
 	else
-	{
-		neg = false;
 		n_cpy = n;
-	}
 	p = s + 11;
 	*p = 0;
 	while (true)
@@ -47,6 +42,7 @@ void	ft_fps(t_data *data)
 	static mlx_image_t	*img = NULL;
 	static int			count;
 	char				s1[12];
+
 	if (count++ < 10)
 		return ;
 	count = 0;

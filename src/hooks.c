@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:48:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/04 23:00:38 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/05 20:56:37 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,26 +20,28 @@ void	ft_loop_hook(void *param)
 	get_mouse_input(data);
 	get_key_input(data);
 	draw_rectangle(data->win, (t_vec2i){0, 0}, \
-		(t_vec2i){data->win->width, data->win->height / 2}, 0xFF00FF00);
-	draw_rectangle(data->win, (t_vec2i){0, data->win->height / 2}, \
-		(t_vec2i){data->win->width, data->win->height / 2}, 0xFFFF0000);
+		(t_vec2i){data->win->width, data->win->height / 2}, \
+		0xFFFFF000);
+	draw_rectangle(data->win, (t_vec2i){0, data->win->height / 2.0}, \
+		(t_vec2i){data->win->width, ceilf((float)data->win->height / 2.0)}, \
+		0xFF555555);
 	ft_rays(data);
 	ft_entities(data);
 	ft_door(data);
 	draw_minimap(data);
 }
 
-// void	ft_scroll_hook(double xdelta, double ydelta, void *param)
-// {
-// 	t_data *const	data = param;
+void	ft_scroll_hook(double xdelta, double ydelta, void *param)
+{
+	t_data *const	data = param;
 
-// 	(void)(xdelta);
-// 	data->fov += ydelta * 0.01;
-// 	if (data->fov < PI / 6.0 || data->fov > PI * 2.0 / 3.0)
-// 		data->fov -= ydelta * 0.01;
-// 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-// 	update_ray_angles(data);
-// }
+	(void)(xdelta);
+	data->fov += ydelta * 0.01;
+	if (data->fov < PI / 6.0 || data->fov > PI * 2.0 / 3.0)
+		data->fov -= ydelta * 0.01;
+	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
+	update_ray_angles(data);
+}
 
 void	ft_resize_hook(int32_t width, int32_t height, void *param)
 {
@@ -49,15 +51,12 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 		destroy_data(data, true, "mlx_resize_image()");
 	if (!mlx_resize_image(data->win_entities, width, height))
 		destroy_data(data, true, "mlx_resize_image()");
-	if (!mlx_resize_image(data->mm_win, data->win->width / 8, data->win->width / 8))
+	if (!mlx_resize_image(data->mm_win, \
+			data->win->width / 8, data->win->width / 8))
 		destroy_data(data, true, "mlx_resize_image()");
-	if (!mlx_resize_image(data->mm_img, data->win->width / 8, data->win->width / 8))
+	if (!mlx_resize_image(data->mm_img, \
+			data->win->width / 8, data->win->width / 8))
 		destroy_data(data, true, "mlx_resize_image()");
-	mlx_delete_image(data->mlx, data->gun_img);
-	data->gun_img = mlx_new_image(data->mlx, (data->win->height / (3 * data->gun_txt->height)) * data->gun_txt->width, data->win->height / 3);
-	scale_texture_to_img(data->gun_txt, data->gun_img);
-	if (mlx_image_to_window(data->mlx, data->gun_img, (data->win->width - data->gun_img->width) / 2, data->win->height * 2 / 3) == -1)
-		destroy_data(data, 1, "Failed to draw img to window");
 	scale_texture_to_img(data->mm_txt, data->mm_img);
 	data->mm_win_h.x = data->mm_win->width / 2;
 	data->mm_win_h.y = data->mm_win->height / 2;
@@ -65,11 +64,9 @@ void	ft_resize_hook(int32_t width, int32_t height, void *param)
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 	free(data->ray_lenghts);
 	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
-	if (!data->ray_lenghts)
-		destroy_data(data, true, "malloc()");
 	free(data->ray_angle);
 	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
-	if (!data->ray_angle)
+	if (!data->ray_angle || !data->ray_lenghts)
 		destroy_data(data, true, "malloc()");
 	update_ray_angles(data);
 }
@@ -90,39 +87,21 @@ void	ft_key_hook(mlx_key_data_t keydata, void *param)
 			mlx_focus(data->mlx);
 		}
 	}
-	if (keydata.key == MLX_KEY_F && keydata.action == MLX_RELEASE)
+	if (keydata.key == MLX_KEY_SPACE && keydata.action == MLX_RELEASE)
 		ft_check_door(data);
 }
 
-void	ft_mouse_hook(mouse_key_t button, action_t action, modifier_key_t mods, void *param)
+void	ft_mouse_hook(mouse_key_t but, action_t act, modifier_key_t _, void *p)
 {
-	t_data *const	data = param;
+	t_data *const	data = p;
 
-	(void)mods;
-	if (button == MLX_MOUSE_BUTTON_RIGHT)
+	(void)_;
+	if (but == MLX_MOUSE_BUTTON_LEFT && act == MLX_PRESS)
 	{
-		if (action == MLX_RELEASE)
-		{
-			data->fov += AIM_ZOOM;
-			if (data->fov < PI / 6.0 || data->fov > PI * 2.0 / 3.0)
-				data->fov -= AIM_ZOOM;
-		}
-		else if (action == MLX_PRESS)
-		{
-			data->fov -= AIM_ZOOM;
-			if (data->fov < PI / 6.0 || data->fov > PI * 2.0 / 3.0)
-				data->fov += AIM_ZOOM;
-		}
-		data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-		update_ray_angles(data);
-	}
-	if (button == MLX_MOUSE_BUTTON_LEFT && action == MLX_PRESS)
-	{
-		if (data->center_ent != -1 && (mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_RIGHT) || rand() & 1))
+		if (data->center_ent != -1 && \
+			data->ray_lenghts[(int)data->win_wh] > data->dis && rand() & 1)
 		{
 			data->entity[data->center_ent].enabled = false;
-			if (++data->kills == data->num_entities)
-				printf("finished\n");
 		}
 	}
 }
