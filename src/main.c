@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 22:39:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/02 23:20:29 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/04 22:57:17 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ int	main(int argc, char **argv)
 		destroy_data(&data, 1, "Failed to draw img to window");
 	if (mlx_image_to_window(data.mlx, data.mm_win, 0, 0) == -1)
 		destroy_data(&data, 1, "Failed to draw img to window");
-	if (mlx_image_to_window(data.mlx, data.mm_txt, 0, 0) == -1)
+	if (mlx_image_to_window(data.mlx, data.mm_img, 0, 0) == -1)
+		destroy_data(&data, 1, "Failed to draw img to window");
+	if (mlx_image_to_window(data.mlx, data.gun_img, (data.win->width - data.gun_img->width) / 2, data.win->height * 2 / 3) == -1)
 		destroy_data(&data, 1, "Failed to draw img to window");
 	mlx_loop_hook(data.mlx, ft_loop_hook, &data);
 	// mlx_scroll_hook(data.mlx, ft_scroll_hook, &data);

@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/03 19:05:12 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/04 20:43:23 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@
 # include "../libft/include/libft.h"
 # include "../mlx42/include/MLX42/MLX42.h"
 
-# define WIDTH 2000
-# define HEIGHT 1000
+# define WIDTH 960
+# define HEIGHT 540
 # define FOV 90.0f
 # define MOUSE_MUL 0.001
 # define AIM_ZOOM 0.3
@@ -177,7 +177,10 @@ typedef struct s_data
 	int32_t			mm_size;
 	mlx_image_t		*mm_win;
 	t_vec2i			mm_win_h;
-	mlx_image_t		*mm_txt;
+	mlx_texture_t	*mm_txt;
+	mlx_image_t		*mm_img;
+	mlx_texture_t	*gun_txt;
+	mlx_image_t		*gun_img;
 }	t_data;
 
 //init
@@ -211,6 +214,8 @@ void			ft_rays(t_data *data);
 void			draw_rectangle(mlx_image_t *img, t_vec2i start , t_vec2i size, int col);
 int32_t			factor_pixel(int c, float f);
 void			txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
+
+void	scale_texture_to_img(mlx_texture_t *texture, mlx_image_t *image);
 
 void	ft_entities(t_data *data);
 
