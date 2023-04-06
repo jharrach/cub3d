@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/06 14:30:50 by jan-arvid        ###   ########.fr       */
+/*   Updated: 2023/04/06 16:26:51 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,8 @@ typedef struct s_data
 	mlx_image_t		*mm_img;
 	float			animation;
 	int32_t			collected;
+	bool			menu;
+	mlx_image_t		*won;
 }	t_data;
 
 //init
@@ -215,6 +217,7 @@ void			ft_rays(t_data *data);
 void			draw_rectangle(mlx_image_t *img, t_vec2i start , t_vec2i size, int col);
 int32_t			factor_pixel(int c, float f);
 void			txt_to_img(mlx_image_t *dst, mlx_texture_t *src, t_vec2i loc, float x_hit);
+void	draw_line(mlx_image_t *img, t_vec2i a, t_vec2i b, uint32_t col);
 
 void	scale_texture_to_img(mlx_texture_t *texture, mlx_image_t *image);
 

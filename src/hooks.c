@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   hooks.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:48:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/06 14:34:30 by jan-arvid        ###   ########.fr       */
+/*   Updated: 2023/04/06 16:28:47 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,23 @@ void	ft_loop_hook(void *param)
 	ft_fps(data);
 	get_mouse_input(data);
 	get_key_input(data);
+	if (data->menu)
+	{
+		if (data->collected == data->num_entities)
+		{
+			data->collected++;
+			data->won = mlx_put_string(data->mlx, "YOU WON!\n", 0, 0);
+			mlx_image_to_window(data->mlx, data->won, data->win->width - data->won->width, data->win->height - data->won->height);
+			mlx_set_cursor_mode(data->mlx, MLX_MOUSE_NORMAL);
+		}
+		return ;
+	}
 	draw_rectangle(data->win, (t_vec2i){0, 0}, \
 		(t_vec2i){data->win->width, data->win->height / 2}, \
-		0xFFFFF000);
+		data->col_ceiling);
 	draw_rectangle(data->win, (t_vec2i){0, data->win->height / 2.0}, \
 		(t_vec2i){data->win->width, ceilf((float)data->win->height / 2.0)}, \
-		0xFF555555);
+		data->col_floor);
 	ft_rays(data);
 	ft_entities(data);
 	ft_door(data);

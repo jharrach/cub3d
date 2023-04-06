@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   entity.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/06 14:36:01 by jan-arvid        ###   ########.fr       */
+/*   Updated: 2023/04/06 16:21:13 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ static void	collide_entity(t_data *data)
 {
 	t_rectf	player;
 	int32_t	i;
+	bool	coll;
 
 	init_rectf_center_vec2f(&player, data->pos, PLAYER_HALF_WIDTH);
 	i = -1;
@@ -130,20 +131,22 @@ static void	collide_entity(t_data *data)
 				data->entity[i].del_pos.y < -2.0 || !data->entity[i].enabled)
 			continue ;
 		if (data->entity[i].half_width > PLAYER_HALF_WIDTH)
-		{
-			if (square_square_collision(&player, &(data->entity[i].rect)))
-			{
-				data->entity[i].enabled = false;
-				data->collected++;
-			}
-		}
+			coll = square_square_collision(&player, &(data->entity[i].rect));
 		else
+			coll = square_square_collision(&(data->entity[i].rect), &player);
+		if (coll)
 		{
-			if (square_square_collision(&(data->entity[i].rect), &player))
-			{
-				data->entity[i].enabled = false;
-				data->collected++;
-			}
+			data->entity[i].enabled = false;
+			data->collected++;
+			if (data->collected == data->num_entities)
+				data->menu = true;
+			mlx_image_t	img = (mlx_image_t){
+				.pixels = data->mm_txt->pixels,
+				.width = data->mm_txt->width,
+				.height = data->mm_txt->height
+			};
+			draw_rectangle(&img, (t_vec2i){0, img.height - 7}, (t_vec2i){(float)img.width * (float)data->collected / (float)data->num_entities, 7}, 0xFF1CD7F9);
+			scale_texture_to_img(data->mm_txt, data->mm_img);
 		}
 	}
 }
