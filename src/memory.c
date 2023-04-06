@@ -43,10 +43,6 @@ void *ft_alloc_add(t_data *data, void *content)
 		destroy_data(data, 1, "Failed to allocate new node!");
 	}
 	ft_lstadd_back(&data->head, new);
-	if (data->head == NULL)
-	{
-		printf("well fuck\n");
-	}
 	return (content);
 }
 
@@ -55,22 +51,21 @@ void ft_free(t_data *data, void *content)
 	t_list	*prev;
 	t_list	*current;
 
-	if (data->head == NULL)
-		free (content);
+	current = data->head;
+	prev = NULL;
+	while (current != NULL && current->content != content)
+	{
+		prev = current;
+		current = current->next;
+	}
+	if (current == NULL)
+		free(content);
 	else
 	{
-		current = data->head;
-		while (current != NULL && current->content != content)
-		{
-			prev = current;
-			current = current->next;
-		}
-		if (current == NULL)
-			free(content);
-		else
-		{
+		if (prev != NULL)
 			prev->next = current->next;
-			ft_lstdelone(current, &free);
-		}
+		else
+			data->head = current->next;
+		ft_lstdelone(current, &free);
 	}
 }
