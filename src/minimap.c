@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minimap.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 21:16:53 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/05 21:44:46 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/06 14:17:52 by jan-arvid        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,7 +232,7 @@ void	draw_minimap(t_data *data)
 
 	fill(data->mm_win, 0xAA000000);
 	i = -1;
-	while (i < data->mm_size)
+	while (i++ < data->mm_size)
 	{
 		af = data->mini_map[i].a;
 		af.x -= data->pos.x;

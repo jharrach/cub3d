@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   entity.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/05 20:49:41 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/06 14:36:01 by jan-arvid        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,20 +86,65 @@ static void	draw_entity(t_data *data, int32_t i)
 	while (mapped.x < 1.0)
 	{
 		if (loc.x >= 0 && loc.x < (int)data->win->width && \
-			(len > data->ray_lenghts[loc.x]))
+			(len > data->ray_lenghts[loc.x]) && data->entity[i].enabled)
 		{
-			if (data->entity[i].enabled)
-				txt_to_img2(data->win_entities, \
-					data->texture[5 + (int)data->animation], loc, mapped.x);
-			else
-				txt_to_img2(data->win_entities, \
-					data->texture[5], loc, mapped.x);
-			if (loc.x == (int)data->win_wh)
-				data->center_ent = i;
-			data->ray_lenghts[loc.x] = len;
+			txt_to_img2(data->win_entities, \
+				data->texture[5 + (int)data->animation], loc, mapped.x);
 		}
 		loc.x++;
 		mapped.x += mapped.y;
+	}
+}
+
+/**
+ * r1 < r2
+*/
+static bool	square_square_collision(t_rectf *r1, t_rectf *r2)
+{
+	if (r1->tr.x >= r2->tl.x && r1->tr.x <= r2->tr.x && \
+		r1->tr.y >= r2->bl.y && r1->tr.y <= r2->tl.y)
+		return (true);
+	if (r1->tl.x >= r2->tl.x && r1->tl.x <= r2->tr.x && \
+		r1->tl.y >= r2->bl.y && r1->tl.y <= r2->tl.y)
+		return (true);
+	if (r1->br.x >= r2->tl.x && r1->br.x <= r2->tr.x && \
+		r1->br.y >= r2->bl.y && r1->br.y <= r2->tl.y)
+		return (true);
+	if (r1->bl.x >= r2->tl.x && r1->bl.x <= r2->tr.x && \
+		r1->bl.y >= r2->bl.y && r1->bl.y <= r2->tl.y)
+		return (true);
+	return (false);
+}
+
+static void	collide_entity(t_data *data)
+{
+	t_rectf	player;
+	int32_t	i;
+
+	init_rectf_center_vec2f(&player, data->pos, PLAYER_HALF_WIDTH);
+	i = -1;
+	while (i++ < data->num_entities)
+	{
+		if (data->entity[i].del_pos.x > 2.0 || data->entity[i].del_pos.y > 2.0 \
+				|| data->entity[i].del_pos.x < -2.0 || \
+				data->entity[i].del_pos.y < -2.0 || !data->entity[i].enabled)
+			continue ;
+		if (data->entity[i].half_width > PLAYER_HALF_WIDTH)
+		{
+			if (square_square_collision(&player, &(data->entity[i].rect)))
+			{
+				data->entity[i].enabled = false;
+				data->collected++;
+			}
+		}
+		else
+		{
+			if (square_square_collision(&(data->entity[i].rect), &player))
+			{
+				data->entity[i].enabled = false;
+				data->collected++;
+			}
+		}
 	}
 }
 
@@ -119,7 +164,6 @@ void	ft_entities(t_data *data)
 	quick_sort_entities(data->entity, 0, data->num_entities - 1);
 	ft_memset(data->win_entities->pixels, 0, \
 		data->win->width * data->win->height * 4);
-	data->center_ent = -1;
 	i = 0;
 	while (i < data->num_entities)
 	{
@@ -130,4 +174,5 @@ void	ft_entities(t_data *data)
 	data->animation += data->mlx->delta_time * ENTITY_ANIMATION_MULTIPLIER;
 	if (data->animation >= ENTITY_TEXTURE_CNT)
 		data->animation = 0.0;
+	collide_entity(data);
 }

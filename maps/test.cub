@@ -3,9 +3,14 @@ SO ./textures/wall.png
 WE ./textures/wall2.png
 EA ./textures/wall.png
 DO               ./textures/door.png
-E1      ./textures/tree2.png
-E2 ./textures/tree.png
-E3 ./textures/tree3.png
+E1 ./textures/coin1.png
+E2 ./textures/coin2.png
+E3 ./textures/coin3.png
+E4 ./textures/coin4.png
+E5 ./textures/coin5.png
+E6 ./textures/coin6.png
+E7 ./textures/coin7.png
+E8 ./textures/coin8.png
 
 C 20,20,20
 F 100,100,100

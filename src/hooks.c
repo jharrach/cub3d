@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   hooks.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:48:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/05 20:56:37 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/06 14:34:30 by jan-arvid        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,17 +91,17 @@ void	ft_key_hook(mlx_key_data_t keydata, void *param)
 		ft_check_door(data);
 }
 
-void	ft_mouse_hook(mouse_key_t but, action_t act, modifier_key_t _, void *p)
-{
-	t_data *const	data = p;
+// void	ft_mouse_hook(mouse_key_t but, action_t act, modifier_key_t _, void *p)
+// {
+// 	t_data *const	data = p;
 
-	(void)_;
-	if (but == MLX_MOUSE_BUTTON_LEFT && act == MLX_PRESS)
-	{
-		if (data->center_ent != -1 && \
-			data->ray_lenghts[(int)data->win_wh] > data->dis && rand() & 1)
-		{
-			data->entity[data->center_ent].enabled = false;
-		}
-	}
-}
+// 	(void)_;
+// 	if (but == MLX_MOUSE_BUTTON_LEFT && act == MLX_PRESS)
+// 	{
+// 		if (data->center_ent != -1 && \
+// 			data->ray_lenghts[(int)data->win_wh] > data->dis && rand() & 1)
+// 		{
+// 			data->entity[data->center_ent].enabled = false;
+// 		}
+// 	}
+// }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/05 19:29:59 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/06 14:30:50 by jan-arvid        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 # define CONTROL_MULTIPLIER 0.5
 # define PLAYER_HALF_WIDTH 0.25
 # define ENTITY_ANIMATION_MULTIPLIER 5.0
-# define ENTITY_TEXTURE_CNT 3
+# define ENTITY_TEXTURE_CNT 8
 # define TEXTURE_CNT 5 + ENTITY_TEXTURE_CNT
 
 typedef enum e_input_types
@@ -172,7 +172,6 @@ typedef struct s_data
 	t_door			door;
 	t_entity		*entity;
 	int32_t			num_entities;
-	int32_t			center_ent;
 	t_input			in;
 	t_linef			*mini_map;
 	int32_t			mm_size;
@@ -182,6 +181,7 @@ typedef struct s_data
 	mlx_texture_t	*mm_txt;
 	mlx_image_t		*mm_img;
 	float			animation;
+	int32_t			collected;
 }	t_data;
 
 //init
