@@ -14,18 +14,22 @@
 
 void	destroy_data(t_data *data, bool ext, char *error)
 {
-	return ;
+	ft_lstclear(&data->head, &free);
 }
 
 int main()
 {
 	t_data data = (t_data){0};
 
-	data.ray_angle = ft_alloc(&data, 5, sizeof(float));
-	data.ray_lenghts = ft_alloc(&data, 5, sizeof(float));
+	int *tests[100];
+	int i = -1;
 
-	// ft_free(&data, data.ray_angle);
-	// ft_free(&data, data.ray_lenghts);
+	char *t = malloc(200);
+	ft_alloc_add(&data, t);
+	while (++i < 100)
+		tests[i] = ft_alloc(&data, 100, 1000);
+	// while (i > 0)
+	// 	ft_free(&data, tests[--i]);
 	ft_lstclear(&data.head, &free);
 	return (0);
 }

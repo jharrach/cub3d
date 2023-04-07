@@ -85,6 +85,4 @@ void	init_data(t_data *data, char *fn)
 	load_data(data, &data->in);
 	init_entities(data);
 	ft_create_minimap(data);
-	//Debug destroy
-		destroy_data(data, 1, "Debug destroy");
 }

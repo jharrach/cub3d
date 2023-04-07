@@ -80,6 +80,10 @@ static int	load_textures(t_data *data, t_input *in)
 	return (0);
 }
 
+// Lines:
+// if (ret != NULL && ft_strlen(ret) > 0 && ret[ft_strlen(ret) - 1] == '\r')
+// 	ret[ft_strlen(ret) - 1] = 0;
+// only needed for windows
 static void	read_input(t_data *data, t_input *in)
 {
 	char	*ret;
@@ -101,11 +105,10 @@ static void	read_input(t_data *data, t_input *in)
 			ft_free(data, in->input);
 		in->input = in->i;
 		ret = ft_alloc_add(data, get_next_line(in->fd));
-		if (ret != NULL && ft_strlen(ret) > 0 \
-			&& ret[ft_strlen(ret) - 1] == '\n')
+		if (ret != NULL && ft_strlen(ret) && ret[ft_strlen(ret) - 1] == '\n')
 			ret[ft_strlen(ret) - 1] = 0;
-		if (ret != NULL && ft_strlen(ret) > 0 && ret[ft_strlen(ret) - 1] == '\r') //Only windows
-			ret[ft_strlen(ret) - 1] = 0; //Only windows
+		if (ret != NULL && ft_strlen(ret) && ret[ft_strlen(ret) - 1] == '\r')
+			ret[ft_strlen(ret) - 1] = 0;
 	}
 }
 
