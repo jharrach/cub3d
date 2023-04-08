@@ -25,7 +25,7 @@ static void	validate_map(t_data *data)
 		y = -1;
 		while (++y < data->map_size.y)
 		{
-			if (ft_strchr("02NESW", data->map[x][y]) != NULL)
+			if (ft_strchr("023", data->map[x][y] + '0') != NULL)
 			{
 				if (x == 0 || y == 0 || x >= data->map_size.x - 1 \
 					|| y >= data->map_size.y - 1)
