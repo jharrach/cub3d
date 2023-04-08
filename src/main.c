@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 22:39:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/06 14:34:35 by jan-arvid        ###   ########.fr       */
+/*   Updated: 2023/04/08 03:18:42 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	main(int argc, char **argv)
 	data.in.fd = -1;
 	data.in.input = NULL;
 	init_data(&data, argv[1]);
-	mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
+	// mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
 	mlx_focus(data.mlx);
 	if (mlx_image_to_window(data.mlx, data.win, 0, 0) == -1)
 		destroy_data(&data, 1, "Failed to draw img to window");

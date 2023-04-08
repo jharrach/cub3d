@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/06 16:21:13 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 03:58:46 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,10 @@ static void	collide_entity(t_data *data)
 			data->entity[i].enabled = false;
 			data->collected++;
 			if (data->collected == data->num_entities)
+			{
 				data->menu = true;
+				mlx_set_cursor_mode(data->mlx, MLX_MOUSE_NORMAL);
+			}
 			mlx_image_t	img = (mlx_image_t){
 				.pixels = data->mm_txt->pixels,
 				.width = data->mm_txt->width,

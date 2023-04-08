@@ -89,7 +89,7 @@ static void	init_mlx(t_data *data)
 	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
 	if (data->mlx == NULL)
 		destroy_data(data, 1, "Failed to init MLX window!");
-	mlx_set_window_limit(data->mlx, 160, 90, __INT_MAX__, __INT_MAX__);
+	mlx_set_window_limit(data->mlx, 160, 90, 1920, 1080);
 	data->win = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
 	data->win_entities = \
 		mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
@@ -103,6 +103,21 @@ static void	init_mlx(t_data *data)
 	data->mm_txt = mlx_load_png("textures/minimap.png");
 	if (!data->mm_txt)
 		exit(42);
+	data->background = mlx_load_png("textures/background.png");
+	if (!data->background)
+		exit(21);
+	data->button[0] = mlx_load_png("textures/button1.png");
+	if (!data->button[0])
+		exit(21);
+	data->button[1] = mlx_load_png("textures/button2.png");
+	if (!data->button[1])
+		exit(21);
+	data->button[2] = mlx_load_png("textures/button3.png");
+	if (!data->button[2])
+		exit(21);
+	data->button[3] = mlx_load_png("textures/button4.png");
+	if (!data->button[3])
+		exit(21);
 	data->mm_img = mlx_new_image(data->mlx, data->win->width / 8, data->win->width / 8);
 	if (data->mm_img == NULL)
 		destroy_data(data, 1, "Failed to create MLX image!");
@@ -159,9 +174,8 @@ mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
 
 void	init_data(t_data *data, char *fn)
 {
-	t_vec2i	mouse;
-
 	*data = (t_data){0};
+	data->menu = true;
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){-1, -1};
 	data->door.moved = -1.0;
@@ -171,8 +185,6 @@ void	init_data(t_data *data, char *fn)
 	if (data->in.fd == -1)
 		destroy_data(data, 1, "Failed to open input file!");
 	init_mlx(data);
-	mlx_get_mouse_pos(data->mlx, &mouse.x, &mouse.y);
-	data->dir_delta = mouse.x * -MOUSE_MUL;
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);

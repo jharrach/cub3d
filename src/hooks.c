@@ -6,11 +6,87 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:48:25 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/06 16:28:47 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 04:12:41 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
+
+static void	draw_pixel(mlx_image_t *img, t_vec2i p, uint32_t col)
+{
+	const int32_t	i = (p.x + p.y * img->width);
+
+	if (p.x >= 0 && p.x < (int32_t)img->width
+		&& p.y >= 0 && p.y < (int32_t)img->height)
+		((uint32_t *)img->pixels)[i] = col;
+}
+
+bool	ft_button(mlx_t *mlx, mlx_image_t *win, mlx_texture_t *tex)
+{
+	int	i;
+	int	j;
+	t_vec2i const	delta = {.x = (int32_t)(win->width - tex->width) / 2, .y = (int32_t)(win->height - tex->height) / 2};
+	t_vec2i	mouse;
+	bool	col;
+
+	col = false;
+	mlx_get_mouse_pos(mlx, &mouse.x, &mouse.y);
+	i = 0;
+	while (i < (int)tex->height)
+	{
+		j = 0;
+		while (j < (int)tex->width)
+		{
+			if (delta.x + j == mouse.x && delta.y + i == mouse.y)
+				col = true;
+			draw_pixel(win, (t_vec2i){.x = delta.x + j, .y = delta.y + i}, ((uint32_t *)(tex->pixels))[i * tex->width + j]);
+			j++;
+		}
+		i++;
+	}
+	printf("%d %d\n", col, delta.x);
+	return (col);
+}
+
+static void	fill(mlx_image_t *img, uint32_t col)
+{
+	int32_t	i;
+
+	i = img->width * img->height;
+	while (i--)
+		((uint32_t *)img->pixels)[i] = col;
+}
+
+void	ft_menu(t_data *data)
+{
+	static bool over_button = false;
+	t_vec2i	mouse;
+
+	data->mm_img->enabled = false;
+	data->mm_win->enabled = false;
+	scale_texture_to_img(data->background, data->win);
+	fill(data->win_entities, 0x0);
+	if (data->started)
+	{
+		over_button = ft_button(data->mlx, data->win_entities, data->button[over_button + 2]);
+		if (over_button && mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_LEFT))
+			mlx_close_window(data->mlx);
+	}
+	else
+	{
+		over_button = ft_button(data->mlx, data->win_entities, data->button[over_button]);
+		if (over_button && mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_LEFT))
+		{
+			data->menu = false;
+			data->mm_img->enabled = true;
+			data->mm_win->enabled = true;
+			mlx_set_cursor_mode(data->mlx, MLX_MOUSE_DISABLED);
+			data->started = true;
+			mlx_get_mouse_pos(data->mlx, &mouse.x, &mouse.y);
+			data->dir_delta = mouse.x * -MOUSE_MUL;
+		}
+	}
+}
 
 void	ft_loop_hook(void *param)
 {
@@ -21,13 +97,7 @@ void	ft_loop_hook(void *param)
 	get_key_input(data);
 	if (data->menu)
 	{
-		if (data->collected == data->num_entities)
-		{
-			data->collected++;
-			data->won = mlx_put_string(data->mlx, "YOU WON!\n", 0, 0);
-			mlx_image_to_window(data->mlx, data->won, data->win->width - data->won->width, data->win->height - data->won->height);
-			mlx_set_cursor_mode(data->mlx, MLX_MOUSE_NORMAL);
-		}
+		ft_menu(data);
 		return ;
 	}
 	draw_rectangle(data->win, (t_vec2i){0, 0}, \

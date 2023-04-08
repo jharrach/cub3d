@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/06 16:26:51 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 04:00:27 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,9 @@ typedef struct s_data
 	float			animation;
 	int32_t			collected;
 	bool			menu;
-	mlx_image_t		*won;
+	mlx_texture_t	*background;
+	mlx_texture_t	*button[4];
+	bool			started;
 }	t_data;
 
 //init
