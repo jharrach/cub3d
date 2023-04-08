@@ -27,6 +27,7 @@ void	destroy_data(t_data *data, bool ext, char *error)
 	ft_lstclear(&data->head, &free);
 	if (error != NULL)
 		printf("Error\n%s\n", error);
+	*data = (t_data){0};
 	if (ext == true)
 		exit(1);
 }

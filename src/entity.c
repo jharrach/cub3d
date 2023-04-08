@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/08 17:12:15 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 23:21:01 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ static void	collide_entity(t_data *data)
 
 	init_rectf_center_vec2f(&player, data->pos, PLAYER_HALF_WIDTH);
 	i = -1;
-	while (i++ < data->num_entities)
+	while (++i < data->num_entities)
 	{
 		if (data->entity[i].del_pos.x > 2.0 || data->entity[i].del_pos.y > 2.0 \
 				|| data->entity[i].del_pos.x < -2.0 || \
