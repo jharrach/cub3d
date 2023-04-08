@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:21:45 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/08 17:46:15 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 22:49:07 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,7 @@ static void	fill(mlx_image_t *img, uint32_t col)
 
 static bool	ft_start_or_conitinue(t_data *data, bool col, t_vec2i mouse)
 {
-	if (data->started)
-		col = ft_button(data->win_entities, data->texture[B3 + col], mouse);
-	else
-		col = ft_button(data->win_entities, data->texture[B1 + col], mouse);
+	col = ft_button(data->win_entities, data->texture[B1 + col], mouse);
 	if (col && mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_LEFT))
 	{
 		data->menu = false;
@@ -79,7 +76,7 @@ void	ft_menu(t_data *data)
 	fill(data->win_entities, 0x0);
 	if (data->collected == data->num_entities)
 	{
-		col = ft_button(data->win_entities, data->texture[B5 + col], mouse);
+		col = ft_button(data->win_entities, data->texture[B3 + col], mouse);
 		if (col && mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_LEFT))
 			mlx_close_window(data->mlx);
 	}

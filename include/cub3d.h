@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/08 17:22:42 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 22:48:33 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@
 # define PLAYER_HALF_WIDTH 0.25
 # define ENTITY_ANIMATION_MULTIPLIER 5.0
 # define ENTITY_TEXTURE_CNT 8
-# define BUTTON_TEXTURE_CNT 6
+# define BUTTON_TEXTURE_CNT 4
 # define ENTITY_BAR_COLOR 0xFF1CD7F9
-# define TEXTURE_STR "NO", "SO", "EA", "WE", "DO", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "BG", "MM", "B1", "B2", "B3", "B4", "B5", "B6"
+# define TEXTURE_STR "NO", "SO", "EA", "WE", "DO", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "BG", "MM", "B1", "B2", "B3", "B4"
 # define TEXTURE_CNT 7 + ENTITY_TEXTURE_CNT + BUTTON_TEXTURE_CNT
 
 typedef enum e_input_types
@@ -67,9 +67,7 @@ typedef enum e_tex
 	B1,
 	B2,
 	B3,
-	B4,
-	B5,
-	B6
+	B4
 }	t_tex;
 
 /**

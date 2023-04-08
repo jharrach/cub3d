@@ -15,10 +15,8 @@ E7 ./textures/coin7.png
 E8 ./textures/coin8.png
 B1 ./textures/button1.png
 B2 ./textures/button2.png
-B3 ./textures/button2.png
+B3 ./textures/button3.png
 B4 ./textures/button4.png
-B5 ./textures/button3.png
-B6 ./textures/button4.png
 
 C 0,200,255
 F 100,100,100
