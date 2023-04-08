@@ -1,4 +1,5 @@
 cub3D
+mazegen
 *.o
 *.a
 *.out

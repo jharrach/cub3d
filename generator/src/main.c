@@ -25,9 +25,9 @@ typedef struct s_stack
 typedef struct s_locations
 {
 	int		*door;
-	size_t	num_doors;
+	int32_t	num_doors;
 	int		*entity;
-	size_t	num_entities;
+	int32_t	num_entities;
 	int		player;
 	int		dir;
 }	t_locations;
@@ -136,15 +136,13 @@ t_stack	*push(t_stack *stack, t_vec2i pos)
 
 t_vec2i	pop(t_stack *stack)
 {
-	t_vec2i	result;
-
 	stack->size--;
 	return (stack->arr[stack->size]);
 }
 
 int replace_wall(t_locations *loc)
 {
-	static size_t	count = 0;
+	static long	count = 0;
 
 	count++;
 	if (count == loc->player + 1)
@@ -211,11 +209,13 @@ t_vec2i	check_size(t_vec2i size)
 	return (size);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
+	if (argc != 3)
+		return (1);
 	srand(time(NULL));
 
-	t_vec2i	size = {.x = 21, .y = 21};
+	t_vec2i	size = {.x = atoi(argv[1]), .y = atoi(argv[2])};
 	
 	size = check_size(size);
 	int **arr = malloc(sizeof(*arr) * size.x);
