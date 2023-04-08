@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rburgsta <rburgsta@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/08 22:48:33 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/09 01:11:32 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,5 +285,7 @@ t_vec2f	vec2f_mul_f(t_vec2f v, float m);
 t_vec2f	vec2f_add(t_vec2f v1, t_vec2f v2);
 t_vec2f	vec2f_sub(t_vec2f v1, t_vec2f v2);
 t_vec2f	rotate_vec2f(t_vec2f v1, float angle);
+
+void	collide_entity(t_data *data);
 
 #endif
