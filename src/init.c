@@ -97,8 +97,6 @@ static void	init_mlx(t_data *data)
 	data->mm_win = mlx_new_image(data->mlx, data->win->width / 8, data->win->width / 8);
 	if (!data->win || !data->mm_win || !data->win_entities)
 		destroy_data(data, 1, "Failed to create MLX image!");
-
-	//new
 	data->mm_win_h.x = data->mm_win->width / 2;
 	data->mm_win_h.y = data->mm_win->height / 2;
 	data->mm_img = mlx_new_image(data->mlx, data->win->width / 8, data->win->width / 8);
@@ -128,30 +126,52 @@ void	remove_transparency(uint8_t *pixels, uint32_t width, uint32_t height)
 
 mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
 {
-	mlx_texture_t	*rotated;
+	uint32_t		*new_pixel;
+	uint32_t		tmp;
 	uint32_t		i;
 	uint32_t		j;
 
-	rotated = malloc(sizeof(*rotated));
-	rotated->pixels = malloc(sizeof(*(rotated->pixels)) * texture->width * texture->height * texture->bytes_per_pixel);
-	if (!rotated->pixels)
-		fprintf(stderr, "I have expected all of this, you know\n");
-	rotated->width = texture->height;
-	rotated->height = texture->width;
-	rotated->bytes_per_pixel = texture->bytes_per_pixel;
+	new_pixel = malloc(sizeof(*(texture->pixels)) * texture->width * texture->height * texture->bytes_per_pixel);
+	if (!new_pixel)
+	{
+		mlx_delete_texture(texture);
+		return (NULL);
+	}
+	tmp = texture->width;
+	texture->width = texture->height;
+	texture->height = tmp;
 	i = 0;
-	while (i < rotated->height)
+	while (i < texture->height)
 	{
 		j = 0;
-		while (j < rotated->width)
+		while (j < texture->width)
 		{
-			((uint32_t *)rotated->pixels)[i * rotated->width + j] = ((uint32_t *)texture->pixels)[j * texture->width + i];
+			new_pixel[i * texture->width + j] = ((uint32_t *)texture->pixels)[j * tmp + i];
 			j++;
 		}
 		i++;
 	}
-	mlx_delete_texture(texture);
-	return (rotated);
+	free(texture->pixels);
+	texture->pixels = (uint8_t *)new_pixel;
+	return (texture);
+}
+
+void	texture_processing(t_data *data)
+{
+	int32_t	i;
+
+	i = 0;
+	while (i < B1)
+	{
+		if (i < BG)
+		{
+			data->texture[i] = rotate_texture(data->texture[i]);
+			if (!data->texture[i])
+				destroy_data(data, true, "Failed to allocate memory!");
+		}
+		remove_transparency(data->texture[i]->pixels, data->texture[i]->width, data->texture[i]->height);
+		i++;
+	}
 }
 
 void	init_data(t_data *data, char *fn)
@@ -167,17 +187,15 @@ void	init_data(t_data *data, char *fn)
 	data->in.fd = open(fn, O_RDONLY);
 	if (data->in.fd == -1)
 		destroy_data(data, 1, "Failed to open input file!");
+	load_data(data, &data->in);
 	init_mlx(data);
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
 	data->ray_angle = ft_alloc(data, data->win->width, sizeof(*(data->ray_angle)));
 	data->ray_lenghts = ft_alloc(data, data->win->width, sizeof(*(data->ray_lenghts)));
 	data->mm_scale = (float)data->win->width / 50.0;
-	update_ray_angles(data);//
-	load_data(data, &data->in);
-	remove_transparency(data->texture[5]->pixels, data->texture[5]->width, data->texture[5]->height);
-	for (int i = 0; i < BG; i++)
-		data->texture[i] = rotate_texture(data->texture[i]);
+	update_ray_angles(data);
+	texture_processing(data);
 	init_entities(data);
 	ft_create_minimap(data);
 }
