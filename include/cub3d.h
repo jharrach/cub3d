@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2023/04/08 04:00:27 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 17:22:42 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,10 @@
 # define PLAYER_HALF_WIDTH 0.25
 # define ENTITY_ANIMATION_MULTIPLIER 5.0
 # define ENTITY_TEXTURE_CNT 8
-# define TEXTURE_CNT 5 + ENTITY_TEXTURE_CNT
+# define BUTTON_TEXTURE_CNT 6
+# define ENTITY_BAR_COLOR 0xFF1CD7F9
+# define TEXTURE_STR "NO", "SO", "EA", "WE", "DO", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "BG", "MM", "B1", "B2", "B3", "B4", "B5", "B6"
+# define TEXTURE_CNT 7 + ENTITY_TEXTURE_CNT + BUTTON_TEXTURE_CNT
 
 typedef enum e_input_types
 {
@@ -43,6 +46,31 @@ typedef enum e_input_types
 	TEXTURE,
 	COLOR
 }	t_input_types;
+
+typedef enum e_tex
+{
+	NO,
+	SO,
+	EA,
+	WE,
+	DO,
+	E1,
+	E2,
+	E3,
+	E4,
+	E5,
+	E6,
+	E7,
+	E8,
+	BG,
+	MM,
+	B1,
+	B2,
+	B3,
+	B4,
+	B5,
+	B6
+}	t_tex;
 
 /**
  * Input data for parsing
@@ -178,13 +206,10 @@ typedef struct s_data
 	mlx_image_t		*mm_win;
 	t_vec2i			mm_win_h;
 	float			mm_scale;
-	mlx_texture_t	*mm_txt;
 	mlx_image_t		*mm_img;
 	float			animation;
 	int32_t			collected;
 	bool			menu;
-	mlx_texture_t	*background;
-	mlx_texture_t	*button[4];
 	bool			started;
 }	t_data;
 
@@ -214,6 +239,8 @@ int				check_ints(char **str);
  * @param error An optional error message
 **/
 void			destroy_data(t_data *data, bool ext, char *error);
+
+void	ft_menu(t_data *data);
 
 void			ft_rays(t_data *data);
 void			draw_rectangle(mlx_image_t *img, t_vec2i start , t_vec2i size, int col);

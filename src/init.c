@@ -12,28 +12,28 @@
 
 #include "../include/cub3d.h"
 
-float	texture_width(mlx_texture_t *texture)
+float	texture_width(mlx_texture_t *tex)
 {
 	uint32_t	i;
 	uint32_t	j;
-	bool		texture_started;
+	bool		tex_started;
 
-	texture_started = false;
+	tex_started = false;
 	i = 0;
-	while (i < texture->width && !texture_started)
+	while (i < tex->width && !tex_started)
 	{
 		j = 0;
-		while (j < texture->height && !texture_started)
+		while (j < tex->height && !tex_started)
 		{
-			if (((uint32_t *)texture->pixels)[j * texture->width + i])
-				texture_started = true;
-			if (((uint32_t *)texture->pixels)[j * texture->width + texture->width - i - 1])
-				texture_started = true;
+			if (((uint32_t *)tex->pixels)[j * tex->width + i])
+				tex_started = true;
+			if (((uint32_t *)tex->pixels)[j * tex->width + tex->width - i - 1])
+				tex_started = true;
 			j++;
 		}
 		i++;
 	}
-	return ((float)(texture->width - i) / ((float)texture->width * 2.0));
+	return ((float)(tex->width - i) / ((float)tex->width * 2.0));
 }
 
 static void	init_entities(t_data *data)
@@ -57,7 +57,8 @@ static void	init_entities(t_data *data)
 				data->entity[++i].pos = (t_vec2f){x + 0.5, y + 0.5};
 				data->entity[i].enabled = true;
 				data->entity[i].half_width = texture_width(data->texture[5]);
-				init_rectf_center_vec2f(&(data->entity[i].rect), data->entity[i].pos, data->entity[i].half_width);
+				init_rectf_center_vec2f(&(data->entity[i].rect), \
+					data->entity[i].pos, data->entity[i].half_width);
 				data->map[x][y] = 0;
 			}
 		}
@@ -77,7 +78,9 @@ void	scale_texture_to_img(mlx_texture_t *texture, mlx_image_t *image)
 		j = 0;
 		while (j < image->width)
 		{
-			((int *)image->pixels)[i * image->width + j] = ((int *)texture->pixels)[(int)(i * h) * texture->width + (int)(j * w)];
+			((int32_t *)image->pixels)[i * image->width + j] = \
+				((int32_t *)texture->pixels) \
+				[(int32_t)(i * h) * texture->width + (int32_t)(j * w)];
 			j++;
 		}
 		i++;
@@ -100,28 +103,9 @@ static void	init_mlx(t_data *data)
 	//new
 	data->mm_win_h.x = data->mm_win->width / 2;
 	data->mm_win_h.y = data->mm_win->height / 2;
-	data->mm_txt = mlx_load_png("textures/minimap.png");
-	if (!data->mm_txt)
-		exit(42);
-	data->background = mlx_load_png("textures/background.png");
-	if (!data->background)
-		exit(21);
-	data->button[0] = mlx_load_png("textures/button1.png");
-	if (!data->button[0])
-		exit(21);
-	data->button[1] = mlx_load_png("textures/button2.png");
-	if (!data->button[1])
-		exit(21);
-	data->button[2] = mlx_load_png("textures/button3.png");
-	if (!data->button[2])
-		exit(21);
-	data->button[3] = mlx_load_png("textures/button4.png");
-	if (!data->button[3])
-		exit(21);
 	data->mm_img = mlx_new_image(data->mlx, data->win->width / 8, data->win->width / 8);
 	if (data->mm_img == NULL)
 		destroy_data(data, 1, "Failed to create MLX image!");
-	scale_texture_to_img(data->mm_txt, data->mm_img);
 }
 
 void	remove_transparency(uint8_t *pixels, uint32_t width, uint32_t height)
@@ -168,7 +152,7 @@ mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
 		}
 		i++;
 	}
-	// mlx_delete_texture(texture);
+	mlx_delete_texture(texture);
 	return (rotated);
 }
 
@@ -195,7 +179,7 @@ void	init_data(t_data *data, char *fn)
 	update_ray_angles(data);//
 	load_data(data, &data->in);
 	remove_transparency(data->texture[5]->pixels, data->texture[5]->width, data->texture[5]->height);
-	for (int i = 0; i < TEXTURE_CNT; i++)
+	for (int i = 0; i < BG; i++)
 		data->texture[i] = rotate_texture(data->texture[i]);
 	init_entities(data);
 	ft_create_minimap(data);

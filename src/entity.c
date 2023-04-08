@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/08 03:58:46 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 17:12:15 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ static void	draw_entity(t_data *data, int32_t i)
 			(len > data->ray_lenghts[loc.x]) && data->entity[i].enabled)
 		{
 			txt_to_img2(data->win_entities, \
-				data->texture[5 + (int)data->animation], loc, mapped.x);
+				data->texture[E1 + (int)data->animation], loc, mapped.x);
 		}
 		loc.x++;
 		mapped.x += mapped.y;
@@ -116,6 +116,25 @@ static bool	square_square_collision(t_rectf *r1, t_rectf *r2)
 	return (false);
 }
 
+static void	handle_collision(t_data *data)
+{
+	data->collected++;
+	if (data->collected == data->num_entities)
+	{
+		data->menu = true;
+		mlx_set_cursor_mode(data->mlx, MLX_MOUSE_NORMAL);
+	}
+	draw_rectangle(&((mlx_image_t){\
+		.width = data->texture[MM]->width, \
+		.height = data->texture[MM]->height, \
+		.pixels = data->texture[MM]->pixels}), \
+		(t_vec2i){0, data->texture[MM]->height - 7}, \
+		(t_vec2i){(float)data->texture[MM]->width * \
+		(float)data->collected / (float)data->num_entities, 7}, \
+		ENTITY_BAR_COLOR);
+	scale_texture_to_img(data->texture[MM], data->mm_img);
+}
+
 static void	collide_entity(t_data *data)
 {
 	t_rectf	player;
@@ -137,19 +156,7 @@ static void	collide_entity(t_data *data)
 		if (coll)
 		{
 			data->entity[i].enabled = false;
-			data->collected++;
-			if (data->collected == data->num_entities)
-			{
-				data->menu = true;
-				mlx_set_cursor_mode(data->mlx, MLX_MOUSE_NORMAL);
-			}
-			mlx_image_t	img = (mlx_image_t){
-				.pixels = data->mm_txt->pixels,
-				.width = data->mm_txt->width,
-				.height = data->mm_txt->height
-			};
-			draw_rectangle(&img, (t_vec2i){0, img.height - 7}, (t_vec2i){(float)img.width * (float)data->collected / (float)data->num_entities, 7}, 0xFF1CD7F9);
-			scale_texture_to_img(data->mm_txt, data->mm_img);
+			handle_collision(data);
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 22:39:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/08 03:18:42 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/08 18:02:05 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ int	main(int argc, char **argv)
 	data.in.fd = -1;
 	data.in.input = NULL;
 	init_data(&data, argv[1]);
-	// mlx_set_cursor_mode(data.mlx, MLX_MOUSE_DISABLED);
 	mlx_focus(data.mlx);
 	if (mlx_image_to_window(data.mlx, data.win, 0, 0) == -1)
 		destroy_data(&data, 1, "Failed to draw img to window");
@@ -33,7 +32,6 @@ int	main(int argc, char **argv)
 		destroy_data(&data, 1, "Failed to draw img to window");
 	mlx_loop_hook(data.mlx, ft_loop_hook, &data);
 	mlx_scroll_hook(data.mlx, ft_scroll_hook, &data);
-	// mlx_mouse_hook(data.mlx, ft_mouse_hook, &data);
 	mlx_key_hook(data.mlx, ft_key_hook, &data);
 	mlx_resize_hook(data.mlx, ft_resize_hook, &data);
 	mlx_loop(data.mlx);

@@ -215,7 +215,7 @@ int	main(void)
 {
 	srand(time(NULL));
 
-	t_vec2i	size = {.x = 121, .y = 121};
+	t_vec2i	size = {.x = 21, .y = 21};
 	
 	size = check_size(size);
 	int **arr = malloc(sizeof(*arr) * size.x);
