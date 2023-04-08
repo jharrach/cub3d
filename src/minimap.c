@@ -22,21 +22,13 @@ static void	ft_realloc_linebuffer(t_data *data)
 	size += LINEBUFFERSIZE;
 	if (!data->mini_map)
 	{
-		data->mini_map = malloc(sizeof(*(data->mini_map)) * size);
-		if (!data->mini_map)
-			destroy_data(data, true, "malloc()");
+		data->mini_map = ft_alloc(data, size, sizeof(*(data->mini_map)));
 		return ;
 	}
 	tmp = data->mini_map;
-	data->mini_map = malloc(sizeof(*(data->mini_map)) * size);
-	if (!data->mini_map)
-	{
-		free(tmp);
-		destroy_data(data, true, "malloc()");
-	}
-	ft_memcpy(data->mini_map, tmp, \
-		sizeof(*(data->mini_map)) * (size - LINEBUFFERSIZE));
-	free(tmp);
+	data->mini_map = ft_alloc(data, size, sizeof(*(data->mini_map)));
+	ft_memcpy(data->mini_map, tmp, sizeof(*(data->mini_map)) * (size - LINEBUFFERSIZE));
+	ft_free(data, tmp);
 }
 
 void	ft_create_east(t_data *data, int32_t x, int32_t	y)

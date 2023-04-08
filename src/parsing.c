@@ -80,6 +80,10 @@ static int	load_textures(t_data *data, t_input *in)
 	return (0);
 }
 
+// Lines:
+// if (ret != NULL && ft_strlen(ret) > 0 && ret[ft_strlen(ret) - 1] == '\r')
+// 	ret[ft_strlen(ret) - 1] = 0;
+// only needed for windows
 static void	read_input(t_data *data, t_input *in)
 {
 	char	*ret;
@@ -90,9 +94,7 @@ static void	read_input(t_data *data, t_input *in)
 	ret = (void *)1;
 	while (ret != NULL)
 	{
-		in->i = malloc((i + 1) * sizeof(char *));
-		if (in->i == NULL)
-			destroy_data(data, 1, "Failed reading input file!");
+		in->i = ft_alloc(data, (i + 1), sizeof(char *));
 		i2 = -1;
 		while (++i2 < i - 1)
 			in->i[i2] = in->input[i2];
@@ -100,14 +102,13 @@ static void	read_input(t_data *data, t_input *in)
 			in->i[i2++] = ret;
 		in->i[i2] = NULL;
 		if (in->input != NULL)
-			free(in->input);
+			ft_free(data, in->input);
 		in->input = in->i;
-		ret = get_next_line(in->fd);
-		if (ret != NULL && ft_strlen(ret) > 0 \
-			&& ret[ft_strlen(ret) - 1] == '\n')
+		ret = ft_alloc_add(data, get_next_line(in->fd));
+		if (ret != NULL && ft_strlen(ret) && ret[ft_strlen(ret) - 1] == '\n')
 			ret[ft_strlen(ret) - 1] = 0;
-		if (ret != NULL && ft_strlen(ret) > 0 && ret[ft_strlen(ret) - 1] == '\r') //Only windows
-			ret[ft_strlen(ret) - 1] = 0; //Only windows
+		if (ret != NULL && ft_strlen(ret) && ret[ft_strlen(ret) - 1] == '\r')
+			ret[ft_strlen(ret) - 1] = 0;
 	}
 }
 

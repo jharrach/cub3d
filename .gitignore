@@ -4,3 +4,4 @@ mazegen
 *.a
 *.out
 .*
+!.vscode

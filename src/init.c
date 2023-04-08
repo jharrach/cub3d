@@ -42,9 +42,7 @@ static void	init_entities(t_data *data)
 	int	x;
 	int	i;
 
-	data->entity = malloc(sizeof(*(data->entity)) * data->num_entities);
-	if (data->entity == NULL)
-		destroy_data(data, 1, "Failed to allocate entities!");
+	data->entity = ft_alloc(data, data->num_entities, sizeof(*(data->entity)));
 	x = -1;
 	i = -1;
 	while (++x < data->map_size.x)
@@ -159,6 +157,7 @@ mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
 void	init_data(t_data *data, char *fn)
 {
 	*data = (t_data){0};
+	data->in.fd = -1;
 	data->menu = true;
 	data->fov = FOV * PI / 180.0;
 	data->pos = (t_vec2f){-1, -1};
@@ -171,11 +170,9 @@ void	init_data(t_data *data, char *fn)
 	init_mlx(data);
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	data->ray_angle = malloc(sizeof(*(data->ray_angle)) * data->win->width);
-	data->ray_lenghts = malloc(sizeof(*(data->ray_lenghts)) * data->win->width);
+	data->ray_angle = ft_alloc(data, data->win->width, sizeof(*(data->ray_angle)));
+	data->ray_lenghts = ft_alloc(data, data->win->width, sizeof(*(data->ray_lenghts)));
 	data->mm_scale = (float)data->win->width / 50.0;
-	if (data->ray_angle == NULL || data->ray_lenghts == NULL)
-		destroy_data(data, 1, "Failed to allocate angle buffer!");
 	update_ray_angles(data);//
 	load_data(data, &data->in);
 	remove_transparency(data->texture[5]->pixels, data->texture[5]->width, data->texture[5]->height);
