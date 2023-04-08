@@ -115,6 +115,8 @@ static void	read_input(t_data *data, t_input *in)
 void	load_data(t_data *data, t_input *in)
 {
 	read_input(data, in);
+	close(data->in.fd);
+	data->in.fd = -1;
 	if (get_input_type(*in->i) == TEXTURE)
 	{
 		if (load_textures(data, in) || load_colors(data, in))
