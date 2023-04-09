@@ -12,30 +12,6 @@
 
 #include "../include/cub3d.h"
 
-float	texture_width(mlx_texture_t *tex)
-{
-	uint32_t	i;
-	uint32_t	j;
-	bool		tex_started;
-
-	tex_started = false;
-	i = 0;
-	while (i < tex->width && !tex_started)
-	{
-		j = 0;
-		while (j < tex->height && !tex_started)
-		{
-			if (((uint32_t *)tex->pixels)[j * tex->width + i])
-				tex_started = true;
-			if (((uint32_t *)tex->pixels)[j * tex->width + tex->width - i - 1])
-				tex_started = true;
-			j++;
-		}
-		i++;
-	}
-	return ((float)(tex->width - i) / ((float)tex->width * 2.0));
-}
-
 static void	init_entities(t_data *data)
 {
 	int	y;
@@ -63,28 +39,6 @@ static void	init_entities(t_data *data)
 	}
 }
 
-void	scale_texture_to_img(mlx_texture_t *texture, mlx_image_t *image)
-{
-	uint32_t	i;
-	uint32_t	j;
-	float const	w = (float)texture->width / (float)image->width;
-	float const	h = (float)texture->height / (float)image->height;
-
-	i = 0;
-	while (i < image->height)
-	{
-		j = 0;
-		while (j < image->width)
-		{
-			((int32_t *)image->pixels)[i * image->width + j] = \
-				((int32_t *)texture->pixels) \
-				[(int32_t)(i * h) * texture->width + (int32_t)(j * w)];
-			j++;
-		}
-		i++;
-	}
-}
-
 static void	init_mlx(t_data *data)
 {
 	data->mlx = mlx_init(WIDTH, HEIGHT, "cub3D", true);
@@ -94,84 +48,16 @@ static void	init_mlx(t_data *data)
 	data->win = mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
 	data->win_entities = \
 		mlx_new_image(data->mlx, data->mlx->width, data->mlx->height);
-	data->mm_win = mlx_new_image(data->mlx, data->win->width / 8, data->win->width / 8);
-	if (!data->win || !data->mm_win || !data->win_entities)
+	data->mm.win = mlx_new_image(data->mlx, \
+		data->win->width / 8, data->win->width / 8);
+	if (!data->win || !data->mm.win || !data->win_entities)
 		destroy_data(data, 1, "Failed to create MLX image!");
-	data->mm_win_h.x = data->mm_win->width / 2;
-	data->mm_win_h.y = data->mm_win->height / 2;
-	data->mm_img = mlx_new_image(data->mlx, data->win->width / 8, data->win->width / 8);
-	if (data->mm_img == NULL)
+	data->mm.win_h.x = (float)data->mm.win->width / 2.0;
+	data->mm.win_h.y = (float)data->mm.win->height / 2.0;
+	data->mm.win_tex = mlx_new_image(data->mlx, data->win->width / 8, \
+		data->win->width / 8);
+	if (data->mm.win_tex == NULL)
 		destroy_data(data, 1, "Failed to create MLX image!");
-}
-
-void	remove_transparency(uint8_t *pixels, uint32_t width, uint32_t height)
-{
-	uint32_t		i;
-	uint32_t		j;
-	uint32_t *const	p = (uint32_t *)pixels;
-
-	i = 0;
-	while (i < height)
-	{
-		j = 0;
-		while (j < width)
-		{
-			if (p[i * width + j])
-				p[i * width + j] |= 0xFF000000;
-			j++;
-		}
-		i++;
-	}
-}
-
-mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
-{
-	uint32_t		*new_pixel;
-	uint32_t		tmp;
-	uint32_t		i;
-	uint32_t		j;
-
-	new_pixel = malloc(sizeof(*(texture->pixels)) * texture->width * texture->height * texture->bytes_per_pixel);
-	if (!new_pixel)
-	{
-		mlx_delete_texture(texture);
-		return (NULL);
-	}
-	tmp = texture->width;
-	texture->width = texture->height;
-	texture->height = tmp;
-	i = 0;
-	while (i < texture->height)
-	{
-		j = 0;
-		while (j < texture->width)
-		{
-			new_pixel[i * texture->width + j] = ((uint32_t *)texture->pixels)[j * tmp + i];
-			j++;
-		}
-		i++;
-	}
-	free(texture->pixels);
-	texture->pixels = (uint8_t *)new_pixel;
-	return (texture);
-}
-
-void	texture_processing(t_data *data)
-{
-	int32_t	i;
-
-	i = 0;
-	while (i < B1)
-	{
-		if (i < BG)
-		{
-			data->texture[i] = rotate_texture(data->texture[i]);
-			if (!data->texture[i])
-				destroy_data(data, true, "Failed to allocate memory!");
-		}
-		remove_transparency(data->texture[i]->pixels, data->texture[i]->width, data->texture[i]->height);
-		i++;
-	}
 }
 
 void	init_data(t_data *data, char *fn)
@@ -191,9 +77,11 @@ void	init_data(t_data *data, char *fn)
 	init_mlx(data);
 	data->win_wh = data->win->width / 2;
 	data->dis = (float)data->win_wh / tanf(data->fov / 2.0);
-	data->ray_angle = ft_alloc(data, data->win->width, sizeof(*(data->ray_angle)));
-	data->ray_lenghts = ft_alloc(data, data->win->width, sizeof(*(data->ray_lenghts)));
-	data->mm_scale = (float)data->win->width / 50.0;
+	data->ray_angle = ft_alloc(data, data->win->width, \
+		sizeof(*(data->ray_angle)));
+	data->ray_lenghts = ft_alloc(data, data->win->width, \
+		sizeof(*(data->ray_lenghts)));
+	data->mm.scale = (float)data->win->width / MM_SCALE;
 	update_ray_angles(data);
 	texture_processing(data);
 	init_entities(data);

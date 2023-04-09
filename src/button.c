@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:21:45 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/08 22:49:07 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/09 02:39:27 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,8 @@ static bool	ft_start_or_conitinue(t_data *data, bool col, t_vec2i mouse)
 	if (col && mlx_is_mouse_down(data->mlx, MLX_MOUSE_BUTTON_LEFT))
 	{
 		data->menu = false;
-		data->mm_img->enabled = true;
-		data->mm_win->enabled = true;
-		data->started = true;
+		data->mm.win_tex->enabled = true;
+		data->mm.win->enabled = true;
 		data->dir_delta = mouse.x * -MOUSE_MUL;
 		mlx_set_cursor_mode(data->mlx, MLX_MOUSE_DISABLED);
 	}
@@ -70,8 +69,8 @@ void	ft_menu(t_data *data)
 	t_vec2i		mouse;
 
 	mlx_get_mouse_pos(data->mlx, &mouse.x, &mouse.y);
-	data->mm_img->enabled = false;
-	data->mm_win->enabled = false;
+	data->mm.win_tex->enabled = false;
+	data->mm.win->enabled = false;
 	scale_texture_to_img(data->texture[BG], data->win);
 	fill(data->win_entities, 0x0);
 	if (data->collected == data->num_entities)

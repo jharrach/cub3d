@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 01:10:42 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/09 01:11:26 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/09 02:31:48 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	handle_collision(t_data *data)
 		(t_vec2i){(float)data->texture[MM]->width * \
 		(float)data->collected / (float)data->num_entities, 7}, \
 		ENTITY_BAR_COLOR);
-	scale_texture_to_img(data->texture[MM], data->mm_img);
+	scale_texture_to_img(data->texture[MM], data->mm.win_tex);
 }
 
 void	collide_entity(t_data *data)

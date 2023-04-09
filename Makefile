@@ -6,7 +6,7 @@
 #    By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: Invalid date        by                   #+#    #+#              #
-#    Updated: 2023/04/09 01:11:52 by jharrach         ###   ########.fr        #
+#    Updated: 2023/04/09 02:53:46 by jharrach         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,8 +21,30 @@ MLX42_DIR	= mlx42/
 MLX42_B_DIR	= $(MLX42_DIR)build/
 LIBFT_DIR	= libft/
 
-SRC			= main ray ray_collision drawings init \
-			  parsing parsing_map parsing_utils destroy rectangle vector entity entity_collision fps door key_input mouse_input hooks minimap button memory
+SRC			=	button\
+				destroy\
+				door\
+				drawings\
+				entity_collision\
+				entity\
+				fps\
+				hooks\
+				init\
+				key_input\
+				main\
+				memory\
+				minimap\
+				minimap2\
+				mouse_input\
+				parsing_map\
+				parsing_utils\
+				parsing\
+				ray_collision\
+				ray\
+				rectangle\
+				textures\
+				vector
+
 OBJ			= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC)))
 
 MLX42		= $(MLX42_B_DIR)libmlx42.a
@@ -84,6 +106,6 @@ pfclean:
 pre: pfclean all
 
 norm:
-	norminette $(SRC_DIR) $(HEADER) | less
+	norminette $(SRC_DIR) $(HEADER) | grep Error | less
 
-.PHONY: all clean fclean re objdir pfclean pre norm
+.PHONY: all clean fclean re objdir pfclean pre norm debug optimized

@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/09 01:11:11 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/09 02:00:59 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	quick_sort_entities(t_entity *arr, int start, int end)
 	quick_sort_entities(arr, i + 1, end);
 }
 
-void	txt_to_img2(mlx_image_t *dst, mlx_texture_t *src, \
+static void	txt_to_img2(mlx_image_t *dst, mlx_texture_t *src, \
 	t_vec2i loc, float x_hit)
 {
 	int			index;

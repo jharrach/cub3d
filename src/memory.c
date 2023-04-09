@@ -12,7 +12,7 @@
 
 #include "../include/cub3d.h"
 
-void *ft_alloc(t_data *data, size_t count, size_t size)
+void	*ft_alloc(t_data *data, size_t count, size_t size)
 {
 	t_list	*new;
 	void	*content;
@@ -30,7 +30,7 @@ void *ft_alloc(t_data *data, size_t count, size_t size)
 	return (content);
 }
 
-void *ft_alloc_add(t_data *data, void *content)
+void	*ft_alloc_add(t_data *data, void *content)
 {
 	t_list	*new;
 
@@ -46,7 +46,7 @@ void *ft_alloc_add(t_data *data, void *content)
 	return (content);
 }
 
-void ft_free(t_data *data, void *content)
+void	ft_free(t_data *data, void *content)
 {
 	t_list	*prev;
 	t_list	*current;
