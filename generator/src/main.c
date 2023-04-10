@@ -34,7 +34,7 @@ typedef struct s_locations
 
 void	print(int **arr, t_vec2i size)
 {
-	// printf("\033[2J\033[100;1H");
+	printf("\033[2J\033[100;1H");
 	for (int i = 0; i < size.x; i++)
 	{
 		for (int j = 0; j < size.y; j++)
@@ -167,11 +167,20 @@ t_vec2i	vec2i_add(t_vec2i v1, t_vec2i v2)
 	return (v1);
 }
 
+t_vec2i	vec2i_sub(t_vec2i v1, t_vec2i v2)
+{
+	v1.x -= v2.x;
+	v1.y -= v2.y;
+	return (v1);
+}
+
 void	create_maze(t_vec2i pos, int **arr, t_vec2i size, t_locations *loc)
 {
 	t_stack	stack = {0};
+	bool creating = false;
 
 	arr[pos.x][pos.y] = '0';
+	t_vec2i next = {0, 0};
 	while (true)
 	{
 		int neighbors = get_neighbor(pos, size, arr);
@@ -184,15 +193,31 @@ void	create_maze(t_vec2i pos, int **arr, t_vec2i size, t_locations *loc)
 				free(stack.arr);
 				break ;
 			}
+			if (creating && rand() % 3 == 0 && (next.x || next.y))
+			{
+				pos = vec2i_add(pos, next);
+				pos = vec2i_add(pos, next);
+				if (isinrange(pos.x, size.x) && isinrange(pos.y, size.y))
+				{
+					pos = vec2i_sub(pos, next);
+					arr[pos.x][pos.y] = '0';
+					print(arr, size);
+					usleep(500000);
+				}
+			}
+			creating = false;
 			pos = pop(&stack);
 			continue ;
 		}
-		t_vec2i next = get_next(neighbors, rand() % num);
+		creating = true;
+		next = get_next(neighbors, rand() % num);
 		push(&stack, pos);
 		pos = vec2i_add(pos, next);
 		arr[pos.x][pos.y] = replace_wall(loc);
 		pos = vec2i_add(pos, next);
 		arr[pos.x][pos.y] = replace_wall(loc);
+		print(arr, size);
+		usleep(500000);
 	}
 }
 
