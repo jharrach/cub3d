@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 01:35:05 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/09 01:38:51 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/12 01:19:36 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,13 @@ void	scale_texture_to_img(mlx_texture_t *texture, mlx_image_t *image)
 
 static mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
 {
-	uint32_t		*new_pixel;
+	uint32_t		*pixel;
 	uint32_t		tmp;
 	t_vec2i			i;
 
-	new_pixel = malloc(sizeof(*(texture->pixels)) * texture->width * \
+	pixel = malloc(sizeof(*(texture->pixels)) * texture->width * \
 		texture->height * texture->bytes_per_pixel);
-	if (!new_pixel)
+	if (!pixel)
 	{
 		mlx_delete_texture(texture);
 		return (NULL);
@@ -79,11 +79,11 @@ static mlx_texture_t	*rotate_texture(mlx_texture_t *texture)
 	{
 		i.x = -1;
 		while (++i.x < (int32_t)texture->width)
-			new_pixel[i.y * texture->width + i.x] = \
-				((uint32_t *)texture->pixels)[i.x * tmp + i.y];
+			pixel[i.y * texture->width + i.x] = ((uint32_t *)texture->pixels) \
+				[i.x * tmp + (texture->height - i.y - 1)];
 	}
 	free(texture->pixels);
-	texture->pixels = (uint8_t *)new_pixel;
+	texture->pixels = (uint8_t *)pixel;
 	return (texture);
 }
 

@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:31:47 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/09 02:00:59 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/12 01:14:49 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ static void	draw_entity(t_data *data, int32_t i)
 	float const	len = data->dis / data->entity[i].del_pos.y;
 	t_vec2f		mapped;
 
-	loc.x = data->entity[i].del_pos.x * len + data->win_wh - len / 2.0;
+	loc.x = data->entity[i].del_pos.x * len + data->win_wh + len / 2.0;
 	loc.y = ((int)data->win->height - len) / 2;
 	mapped = (t_vec2f){.x = 0.0, .y = 1.0 / len};
 	while (mapped.x < 1.0)
@@ -91,7 +91,7 @@ static void	draw_entity(t_data *data, int32_t i)
 			txt_to_img2(data->win_entities, \
 				data->texture[E1 + (int)data->animation], loc, mapped.x);
 		}
-		loc.x++;
+		loc.x--;
 		mapped.x += mapped.y;
 	}
 }
