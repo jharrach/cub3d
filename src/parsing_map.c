@@ -50,7 +50,7 @@ static void	set_player_data(t_data *data, char c, int x, int y)
 		i = -1;
 		while (++i < 4)
 			if (c == "ESWN"[i])
-				data->dir = i * PI / 2;
+				data->dir_delta = i * PI / 2;
 	}
 	else
 		destroy_data(data, 1, "Multiple players in map!");

@@ -1,0 +1,40 @@
+NO ./textures/wall2.png
+SO ./textures/wall.png
+WE ./textures/wall2.png
+EA ./textures/wall.png
+DO ./textures/door.png
+BG ./textures/background.png
+MM ./textures/minimap.png
+E1 ./textures/coin1.png
+E2 ./textures/coin2.png
+E3 ./textures/coin3.png
+E4 ./textures/coin4.png
+E5 ./textures/coin5.png
+E6 ./textures/coin6.png
+E7 ./textures/coin7.png
+E8 ./textures/coin8.png
+B1 ./textures/button1.png
+B2 ./textures/button2.png
+B3 ./textures/button3.png
+B4 ./textures/button4.png
+
+C 0,200,255
+F 100,100,100
+
+11111111111111111
+1010001010030S001
+10101010101110111
+10001010000010001
+11111011111011101
+10001000100000101
+10101110101111101
+10100010101000101
+10111010101210101
+10101010100010001
+10101012101111101
+10101010101010001
+10101010101010111
+10101020101010101
+10101111101010101
+13000300001000001
+11111111111111111

@@ -6,7 +6,7 @@
 /*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:21:45 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/09 02:39:27 by jharrach         ###   ########.fr       */
+/*   Updated: 2023/04/11 14:17:07 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static bool	ft_start_or_conitinue(t_data *data, bool col, t_vec2i mouse)
 		data->menu = false;
 		data->mm.win_tex->enabled = true;
 		data->mm.win->enabled = true;
-		data->dir_delta = mouse.x * -MOUSE_MUL;
+		data->dir_delta += mouse.x * -MOUSE_MUL;
 		mlx_set_cursor_mode(data->mlx, MLX_MOUSE_DISABLED);
 	}
 	return (col);

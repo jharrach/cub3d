@@ -13,7 +13,7 @@
 #define T 0b0100
 #define B 0b1000
 
-#define PAUSE 100000
+#define PAUSE 500000
 
 typedef struct s_vec2i
 {
@@ -74,7 +74,9 @@ void	print_animation(int **arr, t_vec2i size)
 	{
 		for (int j = 0; j < size.y && j < termsize.y - 1; j++)
 		{
-			if (arr[i][j] != '1')
+			if (arr[i][j] != '1' && arr[i][j] != '0')
+				printf("\033[1;31m%c\033[0m", arr[i][j]);
+			else if (arr[i][j] == '0')
 				printf("\033[31m%c\033[0m", arr[i][j]);
 			else
 				printf("%c", arr[i][j]);
@@ -179,13 +181,24 @@ t_vec2i	pop(t_stack *stack)
 	return (stack->arr[stack->size]);
 }
 
-int replace_wall(t_locations *loc)
+int replace_wall(t_locations *loc, t_vec2i next)
 {
 	static long	count = 0;
 
 	count++;
 	if (count == loc->player + 1)
-		return (loc->dir);
+	{
+		if (next.x == 1)
+			return ('N');
+		if (next.x == -1)
+			return ('S');
+		if (next.y == 1)
+			return ('W');
+		if (next.y == -1)
+			return ('E');
+		else
+			return ("NSWE"[rand() % 4]);
+	}
 	for (int i = 0; i < loc->num_doors; i++)
 	{
 		if (count == loc->door[i] + 1)
@@ -218,8 +231,8 @@ void	create_maze(t_vec2i pos, int **arr, t_vec2i size, t_locations *loc)
 	t_stack	stack = {0};
 	bool creating = false;
 
-	arr[pos.x][pos.y] = '0';
 	t_vec2i next = {0, 0};
+	arr[pos.x][pos.y] = replace_wall(loc, next);
 	while (true)
 	{
 		int neighbors = get_neighbor(pos, size, arr);
@@ -254,11 +267,11 @@ void	create_maze(t_vec2i pos, int **arr, t_vec2i size, t_locations *loc)
 		if (loc->term)
 			print_animation(arr, size);
 		pos = vec2i_add(pos, next);
-		arr[pos.x][pos.y] = replace_wall(loc);
+		arr[pos.x][pos.y] = replace_wall(loc, next);
 		if (loc->term)
 			print_animation(arr, size);
 		pos = vec2i_add(pos, next);
-		arr[pos.x][pos.y] = replace_wall(loc);
+		arr[pos.x][pos.y] = replace_wall(loc, next);
 	}
 }
 
@@ -279,11 +292,14 @@ int	main(int argc, char **argv)
 {
 	t_locations	loc;
 
-	if (argc != 3)
+	if (argc != 5)
+	{
+		fprintf(stderr, "Usage: mazegen [WIDTH] [HEIGHT] [NUMBER OF DOORS] [NUMBER OF COINS]\n");
 		return (1);
+	}
 	srand(time(NULL));
 	loc.term = isatty(1);
-	t_vec2i	size = {.x = atoi(argv[1]), .y = atoi(argv[2])};
+	t_vec2i	size = {.x = atoi(argv[2]), .y = atoi(argv[1])};
 	
 	size = check_size(size);
 	int **arr = malloc(sizeof(*arr) * size.x);
@@ -308,14 +324,14 @@ int	main(int argc, char **argv)
 	}
 	t_vec2i	pos = {.x = 1, .y = 1};
 
-	loc.num_doors = 10;
+	loc.num_doors = atoi(argv[3]);
 	loc.door = malloc(sizeof(*(loc.door)) * loc.num_doors);
 	if (!loc.door)
 	{
 		fprintf(stderr, "error: ENOMEM\n");
 		return (1);
 	}
-	loc.num_entities = 20;
+	loc.num_entities = atoi(argv[4]);
 	loc.entity = malloc(sizeof(*(loc.entity)) * loc.num_entities);
 	if (!loc.entity)
 	{
@@ -323,12 +339,29 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	size_t num_zeros = ((size.x - 1) * (size.y - 1)) / 2 - 1;
-	for (int i = 0; i < loc.num_doors; i++)
-		loc.door[i] = (rand() % (num_zeros / 2)) * 2;
-	for (int i = 0; i < loc.num_entities; i++)
-		loc.entity[i] = (rand() % (num_zeros / 2)) * 2 + 1;
-	loc.player = rand() % num_zeros;
-	loc.dir = 'N';
+	if (num_zeros == 1)
+	{
+		loc.player = 0;
+		for (int i = 0; i < loc.num_doors; i++)
+			loc.door[i] = 0;
+		for (int i = 0; i < loc.num_entities; i++)
+			loc.entity[i] = 1;
+	}
+	else
+	{
+		loc.player = rand() % num_zeros;
+		for (int i = 0; i < loc.num_doors; i++)
+			loc.door[i] = (rand() % (num_zeros / 2)) * 2 + 1;
+		for (int i = 0; i < loc.num_entities; i++)
+		{
+			while (true)
+			{
+				loc.entity[i] = (rand() % (num_zeros / 2 + 1)) * 2;
+				if (loc.entity[i] != loc.player)
+					break ;
+			}
+		}
+	}
 	create_maze(pos, arr, size, &loc);
 	if (loc.term)
 		print_animation(arr, size);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   key_input.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jan-arvid <jan-arvid@student.42.fr>        +#+  +:+       +#+        */
+/*   By: jharrach <jharrach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:44:51 by jharrach          #+#    #+#             */
-/*   Updated: 2023/04/06 14:25:47 by jan-arvid        ###   ########.fr       */
+/*   Updated: 2023/04/11 14:41:12 by jharrach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,10 @@ void	get_key_input(t_data *data)
 	t_vec2f	delta;
 	t_recti	rect;
 
+	if (mlx_is_key_down(data->mlx, MLX_KEY_RIGHT))
+		data->dir_delta += data->mlx->delta_time;
+	if (mlx_is_key_down(data->mlx, MLX_KEY_LEFT))
+		data->dir_delta -= data->mlx->delta_time;
 	delta = rotate_vec2f(player_delta(data->mlx), data->dir);
 	data->pos.x += delta.x;
 	init_recti_center_vec2f(&rect, data->pos, PLAYER_HALF_WIDTH);
