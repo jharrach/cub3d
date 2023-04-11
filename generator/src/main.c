@@ -2,13 +2,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <time.h>
+#include <sys/ioctl.h>
 #include <string.h>
+#include <stdint.h>
+#include <time.h>
+#include <errno.h>
 
 #define L 0b0001
 #define R 0b0010
 #define T 0b0100
 #define B 0b1000
+
+#define PAUSE 100000
 
 typedef struct s_vec2i
 {
@@ -24,6 +29,7 @@ typedef struct s_stack
 
 typedef struct s_locations
 {
+	bool	term;
 	int		*door;
 	int32_t	num_doors;
 	int		*entity;
@@ -32,9 +38,21 @@ typedef struct s_locations
 	int		dir;
 }	t_locations;
 
+t_vec2i get_term_size( void ) {
+  struct winsize ws;
+  if ( ioctl( STDIN_FILENO , TIOCGWINSZ, &ws ) != 0 &&
+       ioctl( STDOUT_FILENO, TIOCGWINSZ, &ws ) != 0 &&
+       ioctl( STDERR_FILENO, TIOCGWINSZ, &ws ) != 0 ) {
+    fprintf( stderr,
+      "ioctl() failed (%d): %s\n", errno, strerror( errno )
+    );
+    return ((t_vec2i){0, 0});
+  }
+  return ((t_vec2i){ws.ws_row, ws.ws_col});
+}
+
 void	print(int **arr, t_vec2i size)
 {
-	printf("\033[2J\033[100;1H");
 	for (int i = 0; i < size.x; i++)
 	{
 		for (int j = 0; j < size.y; j++)
@@ -43,6 +61,27 @@ void	print(int **arr, t_vec2i size)
 		}
 		printf("\n");
 	}
+}
+
+void	print_animation(int **arr, t_vec2i size)
+{
+	t_vec2i const	termsize = get_term_size();
+
+	if (termsize.x == 0 && termsize.y == 0)
+		return ;
+	printf("\033[2J");
+	for (int i = 0; i < size.x && i < termsize.x - 1; i++)
+	{
+		for (int j = 0; j < size.y && j < termsize.y - 1; j++)
+		{
+			if (arr[i][j] != '1')
+				printf("\033[31m%c\033[0m", arr[i][j]);
+			else
+				printf("%c", arr[i][j]);
+		}
+		printf("\n");
+	}
+	usleep(PAUSE);
 }
 
 int isinrange(int num, int range)
@@ -193,16 +232,16 @@ void	create_maze(t_vec2i pos, int **arr, t_vec2i size, t_locations *loc)
 				free(stack.arr);
 				break ;
 			}
-			if (creating && rand() % 3 == 0 && (next.x || next.y))
+			if (creating && (next.x || next.y) && rand() % 3 == 0)
 			{
 				pos = vec2i_add(pos, next);
 				pos = vec2i_add(pos, next);
 				if (isinrange(pos.x, size.x) && isinrange(pos.y, size.y))
 				{
+					if (loc->term)
+						print_animation(arr, size);
 					pos = vec2i_sub(pos, next);
 					arr[pos.x][pos.y] = '0';
-					print(arr, size);
-					usleep(500000);
 				}
 			}
 			creating = false;
@@ -212,12 +251,14 @@ void	create_maze(t_vec2i pos, int **arr, t_vec2i size, t_locations *loc)
 		creating = true;
 		next = get_next(neighbors, rand() % num);
 		push(&stack, pos);
+		if (loc->term)
+			print_animation(arr, size);
 		pos = vec2i_add(pos, next);
 		arr[pos.x][pos.y] = replace_wall(loc);
+		if (loc->term)
+			print_animation(arr, size);
 		pos = vec2i_add(pos, next);
 		arr[pos.x][pos.y] = replace_wall(loc);
-		print(arr, size);
-		usleep(500000);
 	}
 }
 
@@ -236,10 +277,12 @@ t_vec2i	check_size(t_vec2i size)
 
 int	main(int argc, char **argv)
 {
+	t_locations	loc;
+
 	if (argc != 3)
 		return (1);
 	srand(time(NULL));
-
+	loc.term = isatty(1);
 	t_vec2i	size = {.x = atoi(argv[1]), .y = atoi(argv[2])};
 	
 	size = check_size(size);
@@ -264,7 +307,6 @@ int	main(int argc, char **argv)
 			arr[i][j] = '1';
 	}
 	t_vec2i	pos = {.x = 1, .y = 1};
-	t_locations	loc;
 
 	loc.num_doors = 10;
 	loc.door = malloc(sizeof(*(loc.door)) * loc.num_doors);
@@ -288,5 +330,8 @@ int	main(int argc, char **argv)
 	loc.player = rand() % num_zeros;
 	loc.dir = 'N';
 	create_maze(pos, arr, size, &loc);
-	print(arr, size);
+	if (loc.term)
+		print_animation(arr, size);
+	else
+		print(arr, size);
 }
